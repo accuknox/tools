@@ -1,0 +1,11 @@
+prometheus:
+  enabled: true
+
+
+auth:
+  rootPassword: "password"
+
+hubble:
+  enabled: true
+  metrics:
+    enabled:"{dns}"

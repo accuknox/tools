@@ -1,0 +1,75 @@
+repositories:
+  - name: cilium
+    url: https://helm.cilium.io/
+      
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+releases:
+  - name: cilium
+    namespace: kube-system
+    chart: cilium/cilium
+    version: 1.10.0
+    values:
+      - hubble:
+          enabled: true
+          listenAddress: ":4244"
+          relay:
+            enabled: true
+
+  - name: feeder
+    namespace: explorer
+    version: 0.1.0
+    chart: ./feeder
+    values:
+      - image:
+          repository: "weirdwiz/test-feeder" 
+          tag: "1"
+      - env:
+        - name: HUBBLE_URL
+          value: hubble-relay.kube-system.svc.cluster.local
+        - name: HUBBLE_PORT
+          value: 80
+        - name: KUBEARMOR_URL
+          value: 32767
+        - name: MYSQL_URL
+          value: mysql.explorer.svc.cluster.local
+        - name: MYSQL_PORT
+          value: 3306
+        - name: HUBBLE_ENABLED
+          value: true
+        - name: KUBEARMOR_ENABLED
+          value: true
+        - name: MYSQL_ENABLED
+          value: true
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_PASSWORD
+          value: password
+        - name: MYSQL_DATABASE
+          value: accuknox
+        - name: CILIUM_TELEMETERY_TABLE
+          value: network_log
+        - name: CILIUM_ALERTS_TABLE
+          value: network_alert
+        - name: KUBEARMOR_SYSLOG_TABLE
+          value: kubearmor_syslog
+        - name: KUBEARMOR_ALERTS_TABLE
+          value: kubearmor_alert
+        - name: ANOMOLY_DETECTION_AGENT_ENABLED
+          value: false
+        - name: CDP_AGENT_ENABLED
+          value: false
+        - name: FEEDER_SERVICE_PLATFORM
+ 
+
+  - name: mysql
+    namespace: explorer
+    chart: bitnami/mysql
+    version: 8.6.1
+    values:
+      - auth:
+          user: "test-user"
+          password: "password"
+          rootPassword: "password"
+          database: "accuknox"
