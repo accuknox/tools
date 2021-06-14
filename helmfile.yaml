@@ -83,7 +83,7 @@ releases:
           value: false
         - name: FEEDER_SERVICE_PLATFORM
  
-  - name: autoPolicy
+  - name: knoxautopolicy
     namespace: explorer
     chart: ./autoPolicy
 
