@@ -6,6 +6,7 @@ repositories:
     url: https://charts.bitnami.com/bitnami
 
 releases:
+
   - name: cilium
     namespace: kube-system
     chart: cilium/cilium
@@ -14,8 +15,25 @@ releases:
       - hubble:
           enabled: true
           listenAddress: ":4244"
-          relay:
+          relay: 
             enabled: true
+
+
+              #  - name: kubearmor
+              #    namespace: kube-system
+              #    chart: ./KubeArmor
+              #    wait: true
+
+  - name: mysql
+    namespace: explorer
+    chart: bitnami/mysql
+    version: 8.6.1
+    values:
+      - auth:
+          user: "test-user"
+          password: "password"
+          rootPassword: "password"
+          database: "accuknox"
 
   - name: feeder
     namespace: explorer
@@ -62,14 +80,4 @@ releases:
           value: false
         - name: FEEDER_SERVICE_PLATFORM
  
-
-  - name: mysql
-    namespace: explorer
-    chart: bitnami/mysql
-    version: 8.6.1
-    values:
-      - auth:
-          user: "test-user"
-          password: "password"
-          rootPassword: "password"
-          database: "accuknox"
+ 

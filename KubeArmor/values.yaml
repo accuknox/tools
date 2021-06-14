@@ -96,7 +96,7 @@ kubearmor:
 
 kubearmor_relay:
   image:
-    repository: accuknox/kubearmor-relay
+    repository: accuknox/kubearmor-relay-server
     pullPolicy: Always
     tag: latest
 
