@@ -7,6 +7,18 @@ repositories:
 
 releases:
 
+  - name: mysql
+    namespace: explorer
+    chart: bitnami/mysql
+    version: 8.6.1
+    values:
+      - auth:
+          user: "test-user"
+          password: "password"
+          rootPassword: "password"
+          database: "accuknox"
+
+
   - name: cilium
     namespace: kube-system
     chart: cilium/cilium
@@ -19,21 +31,10 @@ releases:
             enabled: true
 
 
-              #  - name: kubearmor
-              #    namespace: kube-system
-              #    chart: ./KubeArmor
-              #    wait: true
-
-  - name: mysql
-    namespace: explorer
-    chart: bitnami/mysql
-    version: 8.6.1
-    values:
-      - auth:
-          user: "test-user"
-          password: "password"
-          rootPassword: "password"
-          database: "accuknox"
+  - name: kubearmor
+    namespace: kube-system
+    chart: ./KubeArmor
+    wait: true
 
   - name: feeder
     namespace: explorer
@@ -49,6 +50,8 @@ releases:
         - name: HUBBLE_PORT
           value: 80
         - name: KUBEARMOR_URL
+          value: kubearmor.kube-system.svc.cluster.local
+        - name: KUBEARMOR_PORT
           value: 32767
         - name: MYSQL_URL
           value: mysql.explorer.svc.cluster.local
@@ -67,11 +70,11 @@ releases:
         - name: MYSQL_DATABASE
           value: accuknox
         - name: CILIUM_TELEMETERY_TABLE
-          value: network_log
+          value: network_flow_events
         - name: CILIUM_ALERTS_TABLE
           value: network_alert
         - name: KUBEARMOR_SYSLOG_TABLE
-          value: kubearmor_syslog
+          value: system_log_events
         - name: KUBEARMOR_ALERTS_TABLE
           value: kubearmor_alert
         - name: ANOMOLY_DETECTION_AGENT_ENABLED
@@ -80,4 +83,8 @@ releases:
           value: false
         - name: FEEDER_SERVICE_PLATFORM
  
+  - name: autoPolicy
+    namespace: explorer
+    chart: ./autoPolicy
+
  
