@@ -14,7 +14,7 @@ spec:
         container: knoxautopolicy
     spec:
       containers:
-      - image: gcr.io/accuknox/snapshot/knoxautopolicy
+        - image: accuknox/knoxautopolicy:1.0.2
         #image: "{{ .Values.knoxautopolicy.repository }}:{{ .Values.knoxautopolicy.image.tag | default .Chart.AppVersion }}"
         name: knoxautopolicy
         ports:
