@@ -5,4 +5,4 @@ Collection of helm charts and the scripts to deploy explorer on local systems
 `./helmfile sync`
 
 # Uninstall
-`./helmfile destory`
+`./helmfile destroy`
