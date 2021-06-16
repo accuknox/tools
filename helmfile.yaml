@@ -44,7 +44,9 @@ releases:
     namespace: explorer
     version: 0.1.0
     chart: ./feeder
-    values: - image: repository: "weirdwiz/test-feeder" 
+    values: 
+      - image: 
+          repository: "weirdwiz/test-feeder" 
           tag: "2"
       - env:
         - name: HUBBLE_URL
