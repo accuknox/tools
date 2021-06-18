@@ -7,9 +7,6 @@ repositories:
 
 releases:
 
-  - name: local-path-provisioner
-    chart: ./local-path-provisioner
-
   - name: mysql
     namespace: explorer
     chart: bitnami/mysql
@@ -74,11 +71,11 @@ releases:
         - name: MYSQL_DATABASE
           value: accuknox
         - name: CILIUM_TELEMETERY_TABLE
-          value: network_flow_events
+          value: network_log
         - name: CILIUM_ALERTS_TABLE
           value: network_alert
         - name: KUBEARMOR_SYSLOG_TABLE
-          value: system_log_events
+          value: system_log
         - name: KUBEARMOR_ALERTS_TABLE
           value: kubearmor_alert
         - name: ANOMOLY_DETECTION_AGENT_ENABLED
@@ -91,5 +88,10 @@ releases:
   - name: knoxautopolicy
     namespace: explorer
     chart: ./autoPolicy
+    values:
+      - image:
+        - repository: "accuknox/knoxautopolicy"
+          tag: "dev"
+
 
  
