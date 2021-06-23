@@ -48,7 +48,7 @@ releases:
     values: 
       - image: 
           repository: "weirdwiz/test-feeder" 
-          tag: "test-5"
+          tag: "test-6"
       - env:
         - name: HUBBLE_URL
           value: hubble-relay.kube-system.svc.cluster.local
