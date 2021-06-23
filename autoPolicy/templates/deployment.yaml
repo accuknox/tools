@@ -13,6 +13,7 @@ spec:
       labels:
         container: knoxautopolicy
     spec:
+      serviceAccountName: knoxautopolicy
       containers:
       - image: "accuknox/knoxautopolicy:dev"
         name: knoxautopolicy
