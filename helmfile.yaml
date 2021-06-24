@@ -47,8 +47,8 @@ releases:
     chart: ./feeder
     values: 
       - image: 
-          repository: "weirdwiz/test-feeder" 
-          tag: "test-6"
+          repository: "accuknox/test-feeder" 
+          tag: "test-7"
       - env:
         - name: HUBBLE_URL
           value: hubble-relay.kube-system.svc.cluster.local
