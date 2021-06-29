@@ -6,6 +6,7 @@ metadata:
   labels:
     deployment: kubearmor-relay
 spec:
+  replicas: 1
   selector:
     matchLabels:
       container: kubearmor-relay
@@ -14,7 +15,7 @@ spec:
       labels:
         container: kubearmor-relay
       annotations:
-        container.apparmor.security.beta.kubernetes.io/kubearmor: unconfined
+        kubearmor-policy: audited
     spec:
       serviceAccountName: {{.Values.kubearmor.serviceAccountName }}
       containers:

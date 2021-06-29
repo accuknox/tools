@@ -1,7 +1,7 @@
 general:
   clusterName: Default
-  containerPlatform: docker # { docker | containerd | microk8s }
-  gkeEnabled: false
+  containerPlatform: containerd # { docker | containerd | microk8s }
+  gkeEnabled: true
 
 kubearmor:
   serviceAccountName: kubearmor
@@ -96,7 +96,7 @@ kubearmor:
 
 kubearmor_relay:
   image:
-    repository: accuknox/kubearmor-relay-server
+    repository: accuknox/kubearmor-relay
     pullPolicy: Always
     tag: latest
 

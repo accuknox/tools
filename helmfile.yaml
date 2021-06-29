@@ -7,9 +7,17 @@ repositories:
 
 releases:
 
-  - name: local-path-provisioner
-    namespace: kube-system
-    chart: ./local-path-provisioner
+#   - name: local-path-provisioner
+#     namespace: kube-system
+#     chart: ./local-path-provisioner
+
+  - name: prometheus
+    namespace: explorer
+    chart: bitnami/kube-prometheus
+
+  - name: grafana
+    namespace: explorer
+    chart: bitnami/grafana
 
   - name: mysql
     namespace: explorer
@@ -29,6 +37,14 @@ releases:
     chart: cilium/cilium
     version: 1.10.0
     values:
+      - global:
+          prometheus:
+            enabled: true
+          operatorPrometheus:
+            enabled: true
+          hubble:
+            metrics:
+              enabled: true
       - hubble:
           enabled: true
           listenAddress: ":4244"
