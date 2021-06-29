@@ -95,11 +95,11 @@ releases:
     values:
       - image:
         - repository: "accuknox/knoxautopolicy"
-          tag: "dev"
+          tag: "latest"
 
 
-  - name: prometheus_exporter
+  - name: exporter
     namespace: explorer
-    chart: ./prometheus_exporter
+    chart: ./exporter
 
  
