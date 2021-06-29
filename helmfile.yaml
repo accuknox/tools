@@ -24,7 +24,6 @@ releases:
           rootPassword: "password"
           database: "accuknox"
 
-
   - name: cilium
     namespace: kube-system
     chart: cilium/cilium
@@ -35,7 +34,6 @@ releases:
           listenAddress: ":4244"
           relay: 
             enabled: true
-
 
   - name: kubearmor
     namespace: kube-system
@@ -97,9 +95,7 @@ releases:
         - repository: "accuknox/knoxautopolicy"
           tag: "latest"
 
-
   - name: exporter
     namespace: explorer
     chart: ./exporter
-
  
