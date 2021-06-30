@@ -7,17 +7,9 @@ repositories:
 
 releases:
 
-#   - name: local-path-provisioner
-#     namespace: kube-system
-#     chart: ./local-path-provisioner
-
-  - name: prometheus
-    namespace: explorer
-    chart: bitnami/kube-prometheus
-
-  - name: grafana
-    namespace: explorer
-    chart: bitnami/grafana
+  - name: local-path-provisioner
+    namespace: kube-system
+    chart: ./local-path-provisioner
 
   - name: mysql
     namespace: explorer
