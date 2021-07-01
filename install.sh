@@ -31,10 +31,9 @@ installLocalStorage(){
 }
 
 installPrometheusAndGrafana(){
-    # TODO: change the prometheus namespace
     # TODO: add Kubearmor dashboard
     echo "Installing prometheus and grafana on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/v1.9/examples/kubernetes/addons/prometheus/monitoring-example.yaml
+    curl https://raw.githubusercontent.com/cilium/cilium/v1.9/examples/kubernetes/addons/prometheus/monitoring-example.yaml |  sed 's/cilium-monitoring/explorer/' | kubectl apply -f -
 }
 
 installFeeder(){
