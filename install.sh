@@ -107,9 +107,7 @@ installKubearmor(){
 
 installKnoxAutoPolicy(){
     echo "Installing KnoxAutoPolicy on on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f ./autoPolicy/service.yaml
-    kubectl apply -f ./autoPolicy/dev-config.yaml
-    kubectl apply -f ./autoPolicy/deployment.yaml
+    kubectl apply -f ./autoPolicy/* --namespace explorer
 }
 
 autoDetectEnvironment(){

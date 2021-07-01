@@ -67,9 +67,7 @@ uninstallKubearmor() {
 
 uninstallKnoxAutoPolicy() {
 	echo "Uninstalling KnoxAutoPolicy on on $PLATFORM Kubernetes Cluster"
-	kubectl delete -f ./autoPolicy/service.yaml
-	kubectl delete -f ./autoPolicy/dev-config.yaml
-	kubectl delete -f ./autoPolicy/deployment.yaml
+	kubectl delete -f ./autoPolicy/*.yaml --namespace explorer
 }
 
 autoDetectEnvironment() {
