@@ -1,10 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 HAS_HELM="$(type "helm" &> /dev/null && echo true || echo false)"
 CURRENT_CONTEXT_NAME="$(kubectl config current-context view)"
 PLATFORM="self-managed"
-
-echo $CURRENT_CONTEXT_NAME
 
 installMysql(){
     echo "Installing MySQL on $PLATFORM Kubernetes Cluster"
@@ -37,14 +35,20 @@ installPrometheusAndGrafana(){
     # TODO: add Kubearmor dashboard
     echo "Installing prometheus and grafana on $PLATFORM Kubernetes Cluster"
     kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/v1.9/examples/kubernetes/addons/prometheus/monitoring-example.yaml
-    
 }
 
 installFeeder(){
-  helm install feeder-service-cilium feeder \
-    --namespace=explorer \
-    --set image.repository="accuknox/test-feeder" \
-    --set image.tag="latest" 
+    HELM_FEEDER="helm install feeder-service-cilium feeder --namespace=explorer --set image.repository=\"accuknox/test-feeder\" --set image.tag=\"latest\" "
+    case $PLATFORM in
+        gke)
+            HELM_FEEDER="${HELM_FEEDER} --set platform=gke"
+        ;;
+        self-managed)
+        ;;
+        *)
+            HELM_FEEDER="${HELM_FEEDER} --set kubearmor.enabled=false"
+    esac
+    eval "$HELM_FEEDER"
 }
 
 installCilium() {
@@ -62,7 +66,7 @@ installCilium() {
             --set ipam.mode=kubernetes  \
             --set hubble.relay.enabled=true \
             --set hubble.ui.enabled=true \
-            --set nativeRoutingCIDR=$NATIVE_CIDR\
+            --set nativeRoutingCIDR="$NATIVE_CIDR"\
             --set prometheus.enabled=true\
             --set operator.prometheus.enabled=true
         ;;
@@ -113,7 +117,7 @@ installKnoxAutoPolicy(){
 autoDetectEnvironment(){
     if [[ -z "$CURRENT_CONTEXT_NAME" ]]; then
         echo "no configuration has been provided"
-        return $1
+        return
     fi
     
     echo "Autodetecting environment"
@@ -123,15 +127,17 @@ autoDetectEnvironment(){
         PLATFORM="gke"
         elif [[ $CURRENT_CONTEXT_NAME =~ ^kind-.* ]]; then
         PLATFORM="kind"
+        elif [[ $CURRENT_CONTEXT_NAME =~ ^k3d-.* ]]; then
+        PLATFORM="k3d"
     fi
 }
 
 installHelm(){
-    cd /tmp/
+    cd /tmp/ || return
     curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
     chmod 700 get_helm.sh
     ./get_helm.sh
-    cd -
+    cd - || return
 }
 
 
