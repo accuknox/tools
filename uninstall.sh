@@ -98,3 +98,5 @@ uninstallFeeder
 uninstallPrometheusAndGrafana
 uninstallKubearmorPrometheusClient
 uninstallKnoxAutoPolicy
+
+kubectl delete ns explorer
