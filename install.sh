@@ -34,6 +34,7 @@ installPrometheusAndGrafana(){
     # TODO: add Kubearmor dashboard
     echo "Installing prometheus and grafana on $PLATFORM Kubernetes Cluster"
     curl https://raw.githubusercontent.com/cilium/cilium/v1.9/examples/kubernetes/addons/prometheus/monitoring-example.yaml |  sed 's/cilium-monitoring/explorer/' | kubectl apply -f -
+    kubectl apply -f ./exporter/kubearmor_dashboard.yaml
 }
 
 installFeeder(){
