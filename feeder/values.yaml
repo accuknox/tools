@@ -21,7 +21,7 @@ env:
  - name: KAFKA_PORT
    value: 9095
  - name: HUBBLE_URL
-   value: hubble-relay.cilium.svc.cluster.local
+   value: hubble-relay.kube-system.svc.cluster.local
  - name: HUBBLE_PORT
    value: 80
  - name: KUBEARMOR_URL
