@@ -2,7 +2,7 @@
 Collection of helm charts and the scripts to deploy explorer on local systems
 
 # Installation
-`./helmfile sync`
+`./install.sh`
 
 # Uninstall
-`./helmfile destory`
+`./uninstall.sh`
