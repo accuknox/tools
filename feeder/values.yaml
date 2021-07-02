@@ -8,6 +8,11 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+
+platform: GKE
+kubearmor:
+  enabled: true
+
 variables:
  enabled: true
 env:
@@ -16,7 +21,7 @@ env:
  - name: KAFKA_PORT
    value: 9095
  - name: HUBBLE_URL
-   value: hubble-relay.cilium.svc.cluster.local
+   value: hubble-relay.kube-system.svc.cluster.local
  - name: HUBBLE_PORT
    value: 80
  - name: KUBEARMOR_URL
@@ -45,8 +50,6 @@ env:
    value: tcp://summarize.default:3655
  - name: HUBBLE_ENABLED
    value: true
- - name: KUBEARMOR_ENABLED
-   value: true
  - name: ANOMOLY_DETECTION_AGENT_ENABLED
    value: false
  - name: CDP_AGENT_ENABLED
@@ -57,8 +60,6 @@ env:
    value: true
  - name: MYSQL_ENABLED
    value: true
- - name: FEEDER_SERVICE_PLATFORM
-   value: GCP
  - name: KAFKA_SSL_CA_LOCATION
    value: /home/feeder-service/ca.pem
  - name: KAFKA_SSL_KEYSTORE_LOCATION
@@ -70,7 +71,7 @@ env:
  - name: MYSQL_PASSWORD
    value: password 
  - name: MYSQL_URL
-   value: mysql.default.svc.cluster.local 
+   value: mysql.explorer.svc.cluster.local 
  - name: MYSQL_PORT
    value: 3306
  - name: MYSQL_DATABASE
