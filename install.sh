@@ -50,10 +50,15 @@ installFeeder(){
 }
 
 installCilium() {
+    # FIXME this assumes that the project id, zone, and cluster name can't have
+    # any underscores b/w them which might be a wrong assumption
+	PROJECT_ID="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $2}')"
+	ZONE="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $3}')"
+	CLUSTER_NAME="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $4}')"
     echo "Installing Cilium on $PLATFORM Kubernetes Cluster"
     case $PLATFORM in
         gke)
-            NATIVE_CIDR="$(gcloud container clusters describe cluster-core-backend --zone us-central1-c --format 'value(clusterIpv4Cidr)')"
+        	NATIVE_CIDR="$(gcloud container clusters describe "$CLUSTER_NAME" --zone "$ZONE" --project "$PROJECT_ID" --format 'value(clusterIpv4Cidr)')"
             helm install cilium cilium/cilium --version 1.9.6 \
             --namespace kube-system \
             --set nodeinit.enabled=true \
