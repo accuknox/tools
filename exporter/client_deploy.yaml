@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: kubearmor-prometheus-client
-        image: accuknox/prometheus_exporter_test:5
+        image: accuknox/prometheus_exporter_test:6
         env:
         - name: KUBEARMOR_SERVICE
           value: kubearmor.kube-system.svc:32767
