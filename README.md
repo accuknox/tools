@@ -75,7 +75,7 @@ kubectl -n explorer port-forward service/grafana --address 0.0.0.0 --address :: 
 
 ## Access Prometheus
 ```bash
-kubectl -n cilium-monitoring port-forward service/prometheus --address 0.0.0.0 --address :: 9090:9090
+kubectl -n explorer port-forward service/prometheus --address 0.0.0.0 --address :: 9090:9090
 ```
 
 
