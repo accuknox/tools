@@ -28,7 +28,7 @@ uninstallLocalStorage() {
 
 uninstallPrometheusAndGrafana() {
 	echo "Uninstalling prometheus and grafana on $PLATFORM Kubernetes Cluster"
-	kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/v1.9/examples/kubernetes/addons/prometheus/monitoring-example.yaml
+	kubectl delete -f ./exporter/monitoring-example.yaml
 }
 
 uninstallFeeder() {
