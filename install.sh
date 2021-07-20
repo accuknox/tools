@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 HAS_HELM="$(type "helm" &> /dev/null && echo true || echo false)"
 CURRENT_CONTEXT_NAME="$(kubectl config current-context view)"
