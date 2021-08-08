@@ -59,7 +59,9 @@ installCilium() {
     case $PLATFORM in
         gke)
         	NATIVE_CIDR="$(gcloud container clusters describe "$CLUSTER_NAME" --zone "$ZONE" --project "$PROJECT_ID" --format 'value(clusterIpv4Cidr)')"
-            helm install cilium cilium/cilium --version 1.9.6 \
+            helm install cilium cilium \
+            --set image.repository=docker.io/accuknox/cilium-dev \
+            --set image.tag=identity-soln \
             --namespace kube-system \
             --set nodeinit.enabled=true \
             --set nodeinit.reconfigureKubelet=true \
@@ -75,10 +77,13 @@ installCilium() {
         ;;
         
         *)
-            helm install cilium cilium/cilium --version 1.9.6 \
+            helm install cilium cilium \
             --namespace kube-system \
+            --set image.repository=docker.io/accuknox/cilium-dev \
+            --set image.tag=identity-soln \
             --set hubble.relay.enabled=true \
             --set prometheus.enabled=true \
+            --set cgroup.autoMount.enabled=false \
             --set operator.prometheus.enabled=true
         ;;
     esac
@@ -117,6 +122,11 @@ installKnoxAutoPolicy(){
     kubectl apply -f ./autoPolicy/deployment.yaml --namespace explorer
 }
 
+installSpire(){
+    echo "Installing Spire on $PLATFORM Kubernetes Cluster"
+    kubectl apply -f ./spire/spire.yaml
+}
+
 autoDetectEnvironment(){
     if [[ -z "$CURRENT_CONTEXT_NAME" ]]; then
         echo "no configuration has been provided"
@@ -143,6 +153,9 @@ installHelm(){
     cd - || return
 }
 
+if [[ $KUBEARMOR ]]; then
+    echo "Installing KubeArmor"
+fi
 
 if [[ $HAS_HELM != "true" ]]; then
     echo "Helm not found, installing helm"
@@ -160,8 +173,13 @@ autoDetectEnvironment
 installCilium
 installLocalStorage
 installMysql
-installKubearmor
+
+if [[ $KUBEARMOR ]]; then
+    installKubearmor
+fi
+
 installFeeder
 installPrometheusAndGrafana
 installKubearmorPrometheusClient
 installKnoxAutoPolicy
+installSpire
