@@ -43,6 +43,10 @@ spec:
             readOnly: true
 {{- if .Values.variables.enabled }} 
           env:
+          - name: "FEEDER_SERVICE_PLATFORM"
+            value: {{.Values.platform | quote}}
+          - name: "KUBEARMOR_ENABLED"
+            value: {{.Values.kubearmor.enabled | quote}}
             {{- range .Values.env }} 
           - name: {{ .name }} 
             value: "{{ .value }}"

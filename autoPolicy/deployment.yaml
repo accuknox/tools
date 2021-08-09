@@ -13,14 +13,18 @@ spec:
       labels:
         container: knoxautopolicy
     spec:
+      serviceAccountName: knoxautopolicy
       containers:
-      - image: "accuknox/knoxautopolicy:1.0.2"
-        #image: "{{ .Values.knoxautopolicy.repository }}:{{ .Values.knoxautopolicy.image.tag | default .Chart.AppVersion }}"
+      - image: accuknox/knoxautopolicy:latest 
         name: knoxautopolicy
         ports:
         - containerPort: 9089
           protocol: TCP
         volumeMounts:
-          {{- toYaml .Values.volumeMounts | nindent 12 }}
-      volumes: 
-        {{- toYaml .Values.volumes | nindent 12 }}
+          - mountPath: /conf
+            name: config-volume
+            readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: knoxautopolicy-config
