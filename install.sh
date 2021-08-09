@@ -63,7 +63,7 @@ installCilium() {
             --set image.repository=docker.io/accuknox/cilium-dev \
             --set image.tag=identity-soln \
             --set operator.image.repository=docker.io/accuknox/operator \
-            --set operator.image.tag = identity-soln \
+            --set operator.image.tag=identity-soln \
             --set operator.image.useDigest=false \
             --namespace kube-system \
             --set nodeinit.enabled=true \
