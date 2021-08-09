@@ -62,6 +62,9 @@ installCilium() {
             helm install cilium cilium \
             --set image.repository=docker.io/accuknox/cilium-dev \
             --set image.tag=identity-soln \
+            --set operator.image.repository=docker.io/accuknox/operator \
+            --set operator.image.tag = identity-soln \
+            --set operator.image.useDigest=false \
             --namespace kube-system \
             --set nodeinit.enabled=true \
             --set nodeinit.reconfigureKubelet=true \
@@ -81,6 +84,9 @@ installCilium() {
             --namespace kube-system \
             --set image.repository=docker.io/accuknox/cilium-dev \
             --set image.tag=identity-soln \
+            --set operator.image.repository=docker.io/accuknox/operator \
+            --set operator.image.tag=identity-soln \
+            --set operator.image.useDigest=false \
             --set hubble.relay.enabled=true \
             --set prometheus.enabled=true \
             --set cgroup.autoMount.enabled=false \
@@ -173,13 +179,13 @@ autoDetectEnvironment
 installCilium
 installLocalStorage
 installMysql
+installFeeder
+installPrometheusAndGrafana
 
 if [[ $KUBEARMOR ]]; then
     installKubearmor
+    installKubearmorPrometheusClient
 fi
 
-installFeeder
-installPrometheusAndGrafana
-installKubearmorPrometheusClient
 installKnoxAutoPolicy
 installSpire
