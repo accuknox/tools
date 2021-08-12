@@ -11,14 +11,14 @@ uninstallMysql() {
 
 uninstallKubearmorPrometheusClient() {
 	echo "Uninstalling Kubearmor Metrics Exporter on $PLATFORM Kubernetes Cluster"
-	kubectl delete -f ./exporter/client_deploy.yaml
+	kubectl delete -f https://raw.githubusercontent.com/kubearmor/kubearmor-prometheus-exporter/main/deployments/exporter-deployment.yaml
 }
 
 uninstallLocalStorage() {
 	echo "Uninstalling Local Storage on $PLATFORM Kubernetes Cluster"
 	case $PLATFORM in
 	self-managed)
-		kubectl delete -f ./local-path-provisioner/local-path-storage.yaml
+		kubectl delete -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 		;;
 	*)
 		echo "Skipping..."
@@ -28,7 +28,7 @@ uninstallLocalStorage() {
 
 uninstallPrometheusAndGrafana() {
 	echo "Uninstalling prometheus and grafana on $PLATFORM Kubernetes Cluster"
-	kubectl delete -f ./exporter/monitoring-example.yaml
+	kubectl delete -f https://raw.githubusercontent.com/kubearmor/kubearmor-prometheus-exporter/main/deployments/prometheus/prometheus-grafana-deployment.yaml &> /dev/null
 }
 
 uninstallFeeder() {
@@ -48,16 +48,17 @@ uninstallKubearmor() {
 	echo "Uninstalling Kubearmor on $PLATFORM Kubernets Cluster"
 	case $PLATFORM in
 	gke)
-		kubectl delete -f ./KubeArmor/GKE/kubearmor.yaml
+		kubectl delete -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/GKE/kubearmor.yaml
 		;;
 	microk8s)
-		microk8s kubectl delete -f ./KubeArmor/microk8s/kubearmor.yaml
+		microk8s kubectl delete -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/microk8s/kubearmor.yaml
 		;;
 	self-managed)
-		kubectl delete -f ./KubeArmor/docker/kubearmor.yaml
+		kubectl delete -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/docker/kubearmor.yaml
 		;;
 	containerd)
-		kubectl delete -f ./KubeArmor/generic/kubearmor.yaml
+		kubectl delete -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/generic/kubearmor.yaml
+
 		;;
 	*)
 		echo "Unrecognised platform: $PLATFORM"
@@ -66,10 +67,10 @@ uninstallKubearmor() {
 }
 
 uninstallKnoxAutoPolicy() {
-	echo "Uninstalling KnoxAutoPolicy on on $PLATFORM Kubernetes Cluster"
-	kubectl delete -f ./autoPolicy/service.yaml --namespace explorer
-        kubectl delete -f ./autoPolicy/dev-config.yaml --namespace explorer
-        kubectl delete -f ./autoPolicy/deployment.yaml --namespace explorer
+	kubectl delete -f https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s/service.yaml --namespace explorer
+    kubectl delete -f ./autoPolicy/dev-config.yaml --namespace explorer
+    kubectl delete -f https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s/deployment.yaml --namespace explorer
+    kubectl delete -f https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s/serviceaccount.yaml --namespace explorer
 }
 
 autoDetectEnvironment() {
