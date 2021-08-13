@@ -92,6 +92,6 @@ handleKubearmorPrometheusClient(){
 handleSpire(){
 	[[ "$1" == "" ]] && echo "no operation specified, specify apply/delete" && return 1
     echo "$1 Spire on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f ./spire/spire.yaml
+    kubectl $1 -f ./spire/spire.yaml
 }
 
