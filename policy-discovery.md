@@ -20,11 +20,12 @@ If you plan on using google microservices demo then you needs atleast 8 cpus and
 ... this will take some time .. will install cilium/autopolicy/feeder-service/mysql/.. etc
 
 ## 4. Install your favourite demo app (optional)
-Try following if you want to use [Online Boutique app aka Google Microservice Demo](https://github.com/GoogleCloudPlatform/microservices-demo):
+Try following if you want to use [Online Boutique App aka Google Microservice Demo](https://github.com/GoogleCloudPlatform/microservices-demo):
 ```
 kubectl apply -f other/google-uservice-demo-kubernetes-manifests-minikube.yaml
 ```
 Note that the original google microservice demo manifest has been modified to work on minikube.
+Even if there are no additional apps installed there will be policies discovered in system namespaces.
 
 ## 5. Get discovered policies
 The policies will be auto-discovered inside knoxautopolicy pod. You may have to wait for policies to be discovered .. we trigger auto-discovery every 1000 flows received (with google microservice demo this would be less than a min)
