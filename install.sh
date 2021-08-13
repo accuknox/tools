@@ -1,38 +1,15 @@
 #!/usr/bin/env bash
 
-HAS_HELM="$(type "helm" &> /dev/null && echo true || echo false)"
-CURRENT_CONTEXT_NAME="$(kubectl config current-context view)"
-PLATFORM="self-managed"
+. common.sh
 
 installMysql(){
     echo "Installing MySQL on $PLATFORM Kubernetes Cluster"
     helm install --wait mysql bitnami/mysql --version 8.6.1 \
-    --namespace explorer \
-    --set auth.user="test-user" \
-    --set auth.password="password" \
-    --set auth.rootPassword="password" \
-    --set auth.database="accuknox"
-}
-
-installKubearmorPrometheusClient(){
-    echo "Installing Kubearmor Metrics Exporter on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f https://raw.githubusercontent.com/kubearmor/kubearmor-prometheus-exporter/main/deployments/exporter-deployment.yaml
-}
-
-installLocalStorage(){
-    echo "Installing Local Storage on $PLATFORM Kubernetes Cluster"
-    case $PLATFORM in
-        self-managed)
-            kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-        ;;
-        *)
-            echo "Skipping..."
-    esac
-}
-
-installPrometheusAndGrafana(){
-    echo "Installing prometheus and grafana on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f https://raw.githubusercontent.com/kubearmor/kubearmor-prometheus-exporter/main/deployments/prometheus/prometheus-grafana-deployment.yaml &> /dev/null
+		--namespace explorer \
+		--set auth.user="test-user" \
+		--set auth.password="password" \
+		--set auth.rootPassword="password" \
+		--set auth.database="accuknox"
 }
 
 installFeeder(){
@@ -78,7 +55,7 @@ installCilium() {
             --set prometheus.enabled=true\
             --set operator.prometheus.enabled=true
         ;;
-        
+
         *)
             helm install cilium cilium \
             --namespace kube-system \
@@ -93,63 +70,6 @@ installCilium() {
             --set operator.prometheus.enabled=true
         ;;
     esac
-}
-
-installKubearmor(){
-    echo "Installing Kubearmor on $PLATFORM Kubernets Cluster"
-    case $PLATFORM in
-        gke)
-            kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/GKE/kubearmor.yaml
-        ;;
-        microk8s)
-            microk8s kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/microk8s/kubearmor.yaml
-        ;;
-        self-managed)
-            kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/docker/kubearmor.yaml
-        ;;
-        containerd)
-            kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/master/deployments/generic/kubearmor.yaml
-        ;;
-        minikube)
-            echo "Kubearmor cannot be installed on minikube. Skipping..."
-        ;;
-        kind)
-            echo "Kubearmor cannot be installed on kind. Skipping..."
-        ;;
-        *)
-            echo "Unrecognised platform: $PLATFORM"
-    esac
-}
-
-installKnoxAutoPolicy(){
-    echo "Installing KnoxAutoPolicy on on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s/service.yaml --namespace explorer
-    kubectl apply -f ./autoPolicy/dev-config.yaml --namespace explorer
-    kubectl apply -f https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s/deployment.yaml --namespace explorer
-    kubectl apply -f https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s/serviceaccount.yaml --namespace explorer
-}
-
-installSpire(){
-    echo "Installing Spire on $PLATFORM Kubernetes Cluster"
-    kubectl apply -f ./spire/spire.yaml
-}
-
-autoDetectEnvironment(){
-    if [[ -z "$CURRENT_CONTEXT_NAME" ]]; then
-        echo "no configuration has been provided"
-        return
-    fi
-    
-    echo "Autodetecting environment"
-    if [[ $CURRENT_CONTEXT_NAME =~ ^minikube.* ]]; then
-        PLATFORM="minikube"
-        elif [[ $CURRENT_CONTEXT_NAME =~ ^gke_.* ]]; then
-        PLATFORM="gke"
-        elif [[ $CURRENT_CONTEXT_NAME =~ ^kind-.* ]]; then
-        PLATFORM="kind"
-        elif [[ $CURRENT_CONTEXT_NAME =~ ^k3d-.* ]]; then
-        PLATFORM="k3d"
-    fi
 }
 
 installHelm(){
@@ -171,21 +91,22 @@ fi
 
 echo "Adding helm repos"
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
+helm repo update
 
-kubectl create ns explorer &> /dev/null
+kubectl create ns explorer
 
 autoDetectEnvironment
 
 installCilium
-installLocalStorage
+handleLocalStorage apply
 installMysql
 installFeeder
-installPrometheusAndGrafana
+handlePrometheusAndGrafana apply
 
 if [[ $KUBEARMOR ]]; then
-    installKubearmor
-    installKubearmorPrometheusClient
+    handleKubearmor apply
+    handleKubearmorPrometheusClient apply
 fi
 
-installKnoxAutoPolicy
-installSpire
+handleKnoxAutoPolicy apply
+handleSpire apply
