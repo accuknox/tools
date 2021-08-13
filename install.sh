@@ -78,7 +78,6 @@ installCilium() {
 }
 
 check_prerequisites
-exit
 echo "Adding helm repos"
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
