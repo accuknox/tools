@@ -3,7 +3,7 @@
 ## 1. Clone explorer-charts
 Explorer-charts is an Accuknox tool to setup the test environment with all relevant accuknox components in a test cluster.
 ```
-git clone -b identity-solution git@github.com:accuknox/explorer-charts.git
+git clone git@github.com:accuknox/explorer-charts.git
 cd explorer-charts
 ```
 
