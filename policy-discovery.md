@@ -17,7 +17,7 @@ If you plan on using google microservices demo then you needs atleast 8 cpus and
 ```
 ./install.sh
 ```
-# this will take some time .. will install cilium/autopolicy/feeder-service/mysql/.. etc
+... this will take some time .. will install cilium/autopolicy/feeder-service/mysql/.. etc
 
 ## 4. Install your favourite demo app (optional)
 Try following if you want to use [Online Boutique app aka Google Microservice Demo](https://github.com/GoogleCloudPlatform/microservices-demo):
