@@ -2,6 +2,11 @@
 
 . common.sh
 
+check_prerequisites()
+{
+	command -v helm >/dev/null 2>&1 || { echo >&2 "Require helm but it's not installed.  Aborting."; exit 1; }
+}
+
 installMysql(){
     echo "Installing MySQL on $PLATFORM Kubernetes Cluster"
     helm install --wait mysql bitnami/mysql --version 8.6.1 \
@@ -72,23 +77,8 @@ installCilium() {
     esac
 }
 
-installHelm(){
-    cd /tmp/ || return
-    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-    chmod 700 get_helm.sh
-    ./get_helm.sh
-    cd - || return
-}
-
-if [[ $KUBEARMOR ]]; then
-    echo "Installing KubeArmor"
-fi
-
-if [[ $HAS_HELM != "true" ]]; then
-    echo "Helm not found, installing helm"
-    installHelm
-fi
-
+check_prerequisites
+exit
 echo "Adding helm repos"
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
@@ -104,6 +94,7 @@ installFeeder
 handlePrometheusAndGrafana apply
 
 if [[ $KUBEARMOR ]]; then
+    echo "Installing KubeArmor"
     handleKubearmor apply
     handleKubearmorPrometheusClient apply
 fi
