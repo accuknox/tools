@@ -99,7 +99,6 @@ uninstallSpire() {
 
 autoDetectEnvironment
 
-uninstallKubearmorPrometheusClient
 uninstallPrometheusAndGrafana
 uninstallKnoxAutoPolicy
 uninstallFeeder
@@ -107,6 +106,10 @@ uninstallMysql
 uninstallLocalStorage
 uninstallSpire
 uninstallCilium
-uninstallKubearmor
+
+if [[ $KUBEARMOR ]]; then
+	uninstallKubearmorPrometheusClient
+	uninstallKubearmor
+fi
 
 kubectl delete ns explorer
