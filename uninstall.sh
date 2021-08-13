@@ -96,10 +96,14 @@ autoDetectEnvironment
 uninstallLocalStorage
 uninstallMysql
 uninstallCilium
-uninstallKubearmor
 uninstallFeeder
 uninstallPrometheusAndGrafana
-uninstallKubearmorPrometheusClient
+
+if [[ $KUBEARMOR ]]; then
+	uninstallKubearmor
+	uninstallKubearmorPrometheusClient
+fi
+
 uninstallKnoxAutoPolicy
 
 kubectl delete ns explorer
