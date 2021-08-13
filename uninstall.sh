@@ -93,20 +93,20 @@ autoDetectEnvironment() {
 
 uninstallSpire() {
 	kubectl get pods -n spire | grep "spire-agent" > /dev/null
-	[[ $? ]] && return
+	[[ $? -ne 0 ]] && echo "no spire-agent found" && return
 	kubectl delete -f ./spire/spire.yaml
 }
 
 autoDetectEnvironment
 
-uninstallLocalStorage
-uninstallMysql
-uninstallCilium
-uninstallSpire
-uninstallKubearmor
-uninstallFeeder
-uninstallPrometheusAndGrafana
 uninstallKubearmorPrometheusClient
+uninstallPrometheusAndGrafana
 uninstallKnoxAutoPolicy
+uninstallFeeder
+uninstallMysql
+uninstallLocalStorage
+uninstallSpire
+uninstallCilium
+uninstallKubearmor
 
 kubectl delete ns explorer

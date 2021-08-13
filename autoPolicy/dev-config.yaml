@@ -10,6 +10,7 @@ data:
       network:
         operation-mode: 1                         # 1: cronjob | 2: one-time-job
         cron-job-time-interval: "0h0m10s"         # format: XhYmZs 
+        operation-trigger: 1000
         network-log-from: "db"                    # db|hubble
         network-log-file: "./flow.json"           # file path
         network-policy-to: "db|file"              # db, file
