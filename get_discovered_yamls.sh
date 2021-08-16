@@ -12,7 +12,7 @@ for f in `echo $filelist`; do
 	typ=${f/_*/}
 	ns=${f/*_policies_/}
 	ns=${ns/.yaml/}
+	kubectl cp explorer/$podname:$f $f
 	cnt=`grep "kind:" $f | wc -l`
 	echo "Got $cnt $typ policies for namespace=$ns in file $f"
-	kubectl cp explorer/$podname:$f $f
 done
