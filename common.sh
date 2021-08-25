@@ -18,10 +18,13 @@ autoDetectEnvironment(){
 		PLATFORM="kind"
 	elif [[ $CURRENT_CONTEXT_NAME =~ ^k3d-.* ]]; then
 		PLATFORM="k3d"
-	else
-		echo "No k8s cluster configured or unknown env!"
-		exit 2
-	fi
+        elif [[ $CURRENT_CONTEXT_NAME =~ ^kubernetes-.* ]]; then
+                PLATFORM="self-managed"
+        else
+                echo "No k8s cluster configured or unknown env!"
+                exit 2
+        fi
+   fi
 }
 
 handleKubearmor(){
