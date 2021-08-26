@@ -1,0 +1,7 @@
+image:
+  repository: docker.io/accuknox/spire-agent
+  tag: identity-soln
+
+telemetry:
+  enabled: true
+  address: 127.0.0.1:1337
