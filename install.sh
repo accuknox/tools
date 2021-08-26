@@ -77,6 +77,10 @@ installCilium() {
     esac
 }
 
+installSpire(){
+    helm install spire spire --namespace=explorer
+}
+
 check_prerequisites
 echo "Adding helm repos"
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
@@ -99,4 +103,4 @@ if [[ $KUBEARMOR ]]; then
 fi
 
 handleKnoxAutoPolicy apply
-handleSpire apply
+installSpire

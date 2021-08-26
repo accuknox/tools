@@ -38,6 +38,12 @@ uninstallCilium() {
 
 }
 
+uninstallSpire() {
+	echo "Uninstalling Spire on $PLATFORM Kubernetes Cluster"
+	helm uninstall spire \
+		--namespace explorer
+}
+
 autoDetectEnvironment
 
 handlePrometheusAndGrafana delete
@@ -45,7 +51,7 @@ handleKnoxAutoPolicy delete
 uninstallFeeder
 uninstallMysql
 handleLocalStorage delete
-handleSpire delete
+uninstallSpire
 uninstallCilium
 
 if [[ $KUBEARMOR ]]; then
