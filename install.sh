@@ -42,10 +42,10 @@ installCilium() {
         gke)
         	NATIVE_CIDR="$(gcloud container clusters describe "$CLUSTER_NAME" --zone "$ZONE" --project "$PROJECT_ID" --format 'value(clusterIpv4Cidr)')"
             helm install cilium cilium \
-            --set image.repository=docker.io/accuknox/cilium-dev \
-            --set image.tag=identity-soln \
+            --set image.repository=docker.io/accuknox/cilium-ci \
+            --set image.tag=3228007c8b07ad626cb16c80476e4846b4eb008e \
             --set operator.image.repository=docker.io/accuknox/operator \
-            --set operator.image.tag=identity-soln \
+            --set operator.image.tag=identity-solution \
             --set operator.image.useDigest=false \
             --namespace kube-system \
             --set nodeinit.enabled=true \
@@ -64,10 +64,10 @@ installCilium() {
         *)
             helm install cilium cilium \
             --namespace kube-system \
-            --set image.repository=docker.io/accuknox/cilium-dev \
-            --set image.tag=identity-soln \
+            --set image.repository=docker.io/accuknox/cilium-ci \
+            --set image.tag=3228007c8b07ad626cb16c80476e4846b4eb008e \
             --set operator.image.repository=docker.io/accuknox/operator \
-            --set operator.image.tag=identity-soln \
+            --set operator.image.tag=identity-solution \
             --set operator.image.useDigest=false \
             --set hubble.relay.enabled=true \
             --set prometheus.enabled=true \
@@ -102,5 +102,5 @@ if [[ $KUBEARMOR ]]; then
     handleKubearmorPrometheusClient apply
 fi
 
-handleKnoxAutoPolicy apply
+#handleKnoxAutoPolicy apply
 installSpire
