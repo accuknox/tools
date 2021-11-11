@@ -45,6 +45,7 @@ installCilium() {
             --set image.repository=docker.io/accuknox/cilium-ci \
             --set image.tag=3228007c8b07ad626cb16c80476e4846b4eb008e \
             --set operator.image.repository=docker.io/accuknox/operator \
+            --set operator.image.suffix=-ci \
             --set operator.image.tag=identity-solution \
             --set operator.image.useDigest=false \
             --namespace kube-system \
@@ -67,6 +68,7 @@ installCilium() {
             --set image.repository=docker.io/accuknox/cilium-ci \
             --set image.tag=3228007c8b07ad626cb16c80476e4846b4eb008e \
             --set operator.image.repository=docker.io/accuknox/operator \
+            --set operator.image.suffix=-ci \
             --set operator.image.tag=identity-solution \
             --set operator.image.useDigest=false \
             --set hubble.relay.enabled=true \
