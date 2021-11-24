@@ -1,5 +1,6 @@
 # Explorer
-Explorer is a script which allows the user to use Accuknox products and makes it easy to deploy services like Kubearmor and Knoxautopolicy.
+Explorer allows the user to install multiple policy engines (KubeArmor, KubeArmor-Cilium) and makes it easy to deploy services like policy-discovery.
+
 ## Generate Network policies
 
 Knoxautopolicy can generate network policies on the basis of the cilium telemetery data. Knoxautopolicy reads from a mysql DB, in which all the telemetery data has been stored. The data was stored by the feeder service. 
