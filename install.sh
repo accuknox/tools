@@ -2,19 +2,60 @@
 
 . common.sh
 
-check_prerequisites()
+install_karmor_help()
 {
-	command -v helm >/dev/null 2>&1 || { echo >&2 "Require helm but it's not installed.  Aborting."; exit 1; }
+	echo "karmor cli tool not found. Use following to install:"
+	echo -en "\tcurl -sfL https://raw.githubusercontent.com/kubearmor/kubearmor-client/main/install.sh | sudo sh -s -- -b /usr/local/bin\n"
+	echo -en "\tRef: https://github.com/kubearmor/kubearmor-client\n"
 }
 
-installMysql(){
-    echo "Installing MySQL on $PLATFORM Kubernetes Cluster"
+install_cilium_help()
+{
+	echo "cilium cli tool not found. Use following to install:"
+	cat << END
+	curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz{,.sha256sum}
+	sha256sum --check cilium-linux-amd64.tar.gz.sha256sum
+	sudo tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
+	rm cilium-linux-amd64.tar.gz{,.sha256sum}
+
+	Ref: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli
+END
+}
+
+check_prerequisites()
+{
+	command -v helm >/dev/null 2>&1 || 
+		{ 
+			statusline NOK "helm tool not found"
+			exit 1
+		}
+	statusline AOK "helm found"
+	command -v karmor >/dev/null 2>&1 ||
+		{
+			install_karmor_help
+			statusline NOK "karmor tool not found"
+			exit 1
+		}
+	statusline AOK "karmor cli tool found"
+	command -v cilium >/dev/null 2>&1 ||
+		{
+			install_cilium_help
+			echo "Require 'cilium' cli tool."
+			statusline NOK "cilium cli tool not found"
+			exit 1
+		}
+	statusline AOK "cilium cli tool found"
+}
+
+installMysql() {
+    statusline WAIT "installing mysql"
     helm install --wait mysql bitnami/mysql --version 8.6.1 \
 		--namespace explorer \
 		--set auth.user="test-user" \
 		--set auth.password="password" \
 		--set auth.rootPassword="password" \
-		--set auth.database="accuknox"
+		--set auth.database="knoxautopolicy"
+	statusline AOK "mysql installed"
 }
 
 installFeeder(){
@@ -34,10 +75,14 @@ installFeeder(){
 installCilium() {
     # FIXME this assumes that the project id, zone, and cluster name can't have
     # any underscores b/w them which might be a wrong assumption
-	PROJECT_ID="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $2}')"
-	ZONE="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $3}')"
-	CLUSTER_NAME="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $4}')"
-    echo "Installing Cilium on $PLATFORM Kubernetes Cluster"
+	# PROJECT_ID="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $2}')"
+	# ZONE="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $3}')"
+	# CLUSTER_NAME="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $4}')"
+    statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
+	cilium install
+	cilium status --wait --wait-duration 5m
+	statusline $? "cilium installation"
+: << 'END'
     case $PLATFORM in
         gke)
         	NATIVE_CIDR="$(gcloud container clusters describe "$CLUSTER_NAME" --zone "$ZONE" --project "$PROJECT_ID" --format 'value(clusterIpv4Cidr)')"
@@ -77,32 +122,44 @@ installCilium() {
             --set operator.prometheus.enabled=true
         ;;
     esac
+END
+	# Installing cilium using cilium operator
 }
 
 installSpire(){
     helm install spire spire --namespace=explorer
 }
 
+usage()
+{
+	cat << END
+Usage: [ENV VARS] $0"
+   KA_INSTALL_OPTS=<opts> ... karmor install <opts> to use (e.g., KA_INSTALL_OPTS="--image kubearmor/kubearmor:dev"
+END
+	exit 0
+}
+
+# Processing starts here
+[[ "$1" != "" ]] && usage
+
 check_prerequisites
-echo "Adding helm repos"
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
 
-kubectl create ns explorer
+kubectl get ns explorer >/dev/null 2>&1
+[[ $? -ne 0 ]] && kubectl create ns explorer
+statusline AOK "explorer namespace created/already present."
 
 autoDetectEnvironment
 
-installCilium
+#installCilium
 handleLocalStorage apply
 installMysql
-installFeeder
-handlePrometheusAndGrafana apply
+#installFeeder
+#handlePrometheusAndGrafana apply
 
-if [[ $KUBEARMOR ]]; then
-    echo "Installing KubeArmor"
-    handleKubearmor apply
-    handleKubearmorPrometheusClient apply
-fi
+handleKubearmor apply
+# handleKubearmorPrometheusClient apply
 
-#handleKnoxAutoPolicy apply
-installSpire
+handleKnoxAutoPolicy apply
+#installSpire

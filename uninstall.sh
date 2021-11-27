@@ -3,7 +3,8 @@
 . common.sh
 
 uninstallMysql() {
-	echo "Uninstalling MySQL on $PLATFORM Kubernetes Cluster"
+	statusline WAIT "uninstalling mysql"
+	: <<END
 	command -v mysql >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
 		kubectl port-forward -n explorer svc/mysql --address 0.0.0.0 --address :: 33067:3306 &
@@ -21,42 +22,37 @@ uninstallMysql() {
 			kill -9 $sqlfwd
 		fi
 	fi
-	helm uninstall mysql \
-		--namespace explorer
+END
+	helm uninstall mysql --namespace explorer
+	statusline AOK "uninstalling mysql"
 }
 
 uninstallFeeder() {
-	helm uninstall feeder-service-cilium \
-		--namespace explorer
-
+	helm uninstall feeder-service-cilium --namespace explorer
 }
 
 uninstallCilium() {
-	echo "Uninstalling Cilium on $PLATFORM Kubernetes Cluster"
-	helm uninstall cilium \
-		--namespace kube-system
-
+	statusline WAIT "uninstalling cilium"
+	helm uninstall cilium --namespace kube-system
+	statusline AOK "uninstalled cilium"
 }
 
 uninstallSpire() {
-	echo "Uninstalling Spire on $PLATFORM Kubernetes Cluster"
-	helm uninstall spire \
-		--namespace explorer
+	echo "uninstalling Spire"
+	helm uninstall spire --namespace explorer
 }
 
 autoDetectEnvironment
 
-handlePrometheusAndGrafana delete
+#handlePrometheusAndGrafana delete
 handleKnoxAutoPolicy delete
-uninstallFeeder
+#uninstallFeeder
 uninstallMysql
 handleLocalStorage delete
-uninstallSpire
+#uninstallSpire
 uninstallCilium
 
-if [[ $KUBEARMOR ]]; then
-	handleKubearmorPrometheusClient delete
-    handleKubearmor delete
-fi
+#handleKubearmorPrometheusClient delete
+handleKubearmor delete
 
 kubectl delete ns explorer

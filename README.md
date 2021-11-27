@@ -1,5 +1,5 @@
 # Explorer
-Explorer allows the user to install multiple policy engines (KubeArmor, KubeArmor-Cilium) and makes it easy to deploy services like policy-discovery.
+Explorer allows the user to install policy engines (KubeArmor, KubeArmor-Cilium) and makes it easy to deploy services like policy-discovery.
 
 ## Generate Network policies
 
