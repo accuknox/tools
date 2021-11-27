@@ -48,6 +48,8 @@ check_prerequisites()
 }
 
 installMysql() {
+	kubectl get pod -n explorer -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
+	[[ $? -eq 0 ]] && statusline AOK "mysql already installed" && return 0
     statusline WAIT "installing mysql"
     helm install --wait mysql bitnami/mysql --version 8.6.1 \
 		--namespace explorer \
@@ -80,6 +82,7 @@ installCilium() {
 	# CLUSTER_NAME="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $4}')"
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
 	cilium install
+	cilium hubble enable
 	cilium status --wait --wait-duration 5m
 	statusline $? "cilium installation"
 : << 'END'
@@ -152,7 +155,7 @@ statusline AOK "explorer namespace created/already present."
 
 autoDetectEnvironment
 
-#installCilium
+installCilium
 handleLocalStorage apply
 installMysql
 #installFeeder

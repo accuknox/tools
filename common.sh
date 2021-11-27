@@ -112,6 +112,11 @@ END
 handleKnoxAutoPolicy()
 {
 	[[ "$1" == "" ]] && echo "no operation specified, specify apply/delete" && return 1
+	kubectl get pod -n explorer -l container=knoxautopolicy | grep "knoxautopolicy" >/dev/null 2>&1
+	kap_install=$? #kap_install = 0 if installed already
+	[[ "$1" == "apply" ]] && [[ $kap_install -eq 0 ]] && \
+		statusline AOK "knoxautopolicy already installed" && return 0
+	[[ "$1" == "delete" ]] && [[ $kap_install -ne 0 ]] && return 0
 	KNOXAUTOPOLICY_REPO="https://raw.githubusercontent.com/accuknox/knoxAutoPolicy-deployment/main/k8s"
 	KNOXAUTOPOLICY_SVC="$KNOXAUTOPOLICY_REPO/service.yaml --namespace explorer"
 	KNOXAUTOPOLICY_CFG="$KNOXAUTOPOLICY_REPO/dev-config.yaml --namespace explorer"
