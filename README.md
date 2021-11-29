@@ -1,101 +1,116 @@
-# Explorer
-Explorer allows the user to install policy engines (KubeArmor, KubeArmor-Cilium) and makes it easy to deploy services like policy-discovery.
+# Setup Instructions
 
-## Generate Network policies
+This install instructions allow you to setup sample cluster with:
+* Cilium CNI
+* Kubearmor Application Protection Engine
+* Auto Policy Discovery Engine
+* Command line tools
 
-Knoxautopolicy can generate network policies on the basis of the cilium telemetery data. Knoxautopolicy reads from a mysql DB, in which all the telemetery data has been stored. The data was stored by the feeder service. 
+## 1. Install sample k8s cluster
 
-In order to generate network policies, we must first start the `net_worker`.
-We'll first forward the port 9089 in order to connect to the auto policy service using `grpcurl`
-```bash
-kubectl port-forward -n explorer svc/knoxautopolicy --address 0.0.0.0 --address :: 9089:9089
+<details>
+  <summary>Using k3s local cluster</summary>
+  
+#### Install k3s
+    
 ```
-
-In a separate terminal run
-```bash
-export DATA='{"policytype": "network"}'
-grpcurl -plaintext -d "$DATA" localhost:9089 v1.worker.Worker.Start
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--flannel-backend=none' sh -s - --write-kubeconfig-mode 644
 ```
-
-The network policies will be generated inside the `network_policies` table in mysql.
-
-
-## Generate Kubearmor Alerts
-Kubearmor generates alerts when it's policy is violated. This generates some metrics this metrics are served by the prometheus metrics server, which is scraped by Prometheus, and displayed on our Grafana dashboard.
-
-To generate the metrics we must deploy an example workload, of a few ubuntu pods.
-```bash
-kubectl apply -f https://raw.githubusercontent.com/accuknox/KubeArmor/master/examples/multiubuntu/multiubuntu-deployment.yaml
-```
-
-![multiubuntu](https://github.com/accuknox/KubeArmor/raw/master/.gitbook/assets/multiubuntu.png)
-
-We can now apply some policies on this workload. For example:
-### Block a process execution
-
-In this following policy we block the sleep command in the namespace `multiubuntu` and to the pods with matchLabel `group-1`.
-```yaml
-apiVersion: security.accuknox.com/v1
-kind: KubeArmorPolicy
-metadata:
-  name: ksp-group-1-proc-path-block
-  namespace: multiubuntu
-spec:
-  severity: 5
-  message: "block the sleep command"
-  selector:
-    matchLabels:
-      group: group-1
-  process:
-    matchPaths:
-    - path: /bin/sleep # try sleep 1 (permission denied)
-      # fromSource:
-      #   path: /bin/bash
-  action:
-    Block
-```
-Apply the policy:
-```bash
-# Apply the policy to group 1
-
-kubectl apply -f https://raw.githubusercontent.com/accuknox/KubeArmor/master/examples/multiubuntu/security-policies/ksp-group-1-proc-path-block.yaml
-
-kubectl exec -it -n multiubuntu {pod name for ubuntu-1} -- bash
-
-# Kubearmor has successfully blocked the execution of the specified binary!
-mutiubuntu$ sleep 1
-(Permission Denied)
+    
+#### Make k3s cluster config the default
 
 ```
-
-## Access Grafana
-
-```bash
-kubectl -n explorer port-forward service/grafana --address 0.0.0.0 --address :: 3000:3000
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 ```
+You can add this to your `.bashrc`. (Note that any other k8s cluster will not be reachable using `kubectl` once you override `KUBECONFIG`).
 
-## Access Prometheus
-```bash
-kubectl -n explorer port-forward service/prometheus --address 0.0.0.0 --address :: 9090:9090
+</details>
+
+## 2. Install Daemonsets and Services
+
 ```
+curl -s https://raw.githubusercontent.com/accuknox/tools/main/install.sh | bash
+```
+This will install all the components. 
+<details>
+  <summary>Output from `kubectl get pods -A`</summary>
 
+ 
+```
+NAMESPACE     NAME                                             READY   STATUS      RESTARTS   AGE
+kube-system   helm-install-traefik-crd-gwlpt                   0/1     Completed   0          3h17m
+kube-system   helm-install-traefik-lzkqg                       0/1     Completed   1          3h17m
+kube-system   svclb-traefik-47bc4                              2/2     Running     2          3h9m
+kube-system   metrics-server-86cbb8457f-cw9jd                  1/1     Running     1          3h9m
+kube-system   local-path-provisioner-7c7846d5f8-kxdxj          1/1     Running     1          3h3m
+kube-system   coredns-7448499f4d-qk6pv                         1/1     Running     0          15m
+kube-system   traefik-5ffb8d6846-w8clc                         1/1     Running     1          3h3m
+kube-system   cilium-operator-6bbdb895b5-ff752                 1/1     Running     0          12m
+kube-system   hubble-relay-84999fcb48-8d5ss                    1/1     Running     0          11m
+kube-system   cilium-wkgzn                                     1/1     Running     0          11m
+explorer      mysql-0                                          1/1     Running     0          10m
+kube-system   kubearmor-67jtk                                  1/1     Running     0          8m34s
+kube-system   kubearmor-policy-manager-986bd8dbc-4s79d         2/2     Running     0          8m34s
+kube-system   kubearmor-host-policy-manager-5bcccfc4f5-gkbck   2/2     Running     0          8m34s
+kube-system   kubearmor-relay-645667c695-brzpg                 1/1     Running     0          8m34s
+explorer      knoxautopolicy-6bf6c98dbb-pfwt9                  1/1     Running     0          8m20s
+```
+    
+We have following installed:
+* kubearmor protection engine
+* cilium CNI
+* Auto policy discovery engine
+* MySQL database to keep discovered policies
+* Hubble Relay and KubeArmor Relay
 
+</details>
 
-## Installation
-The installation script deploys:
-- Cilium
-- SQL Database
-- Kubearmor*
-- Feeder service
-- KnoxAutoPolicy
-- Dynamic Storage Provisioner*
-- Kubearmor Prometheus Metrics Exporter
-- Prometheus and Grafana
+## 3. Install Sample k8s application
+
+Install anyone of the following app or you can try your own k8s app.
+
+<details>
+  <summary>Wordpress-Mysql App</summary>
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/main/examples/wordpress-mysql/wordpress-mysql-deployment.yaml
+```
+</details>
+
+<details>
+  <summary>Google "Online Boutique" Microservice Demo App</summary>
+    
+[Application Reference](https://github.com/GoogleCloudPlatform/microservices-demo)
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/main/examples/wordpress-mysql/wordpress-mysql-deployment.yaml
+```
+</details>
+
+## 4. Get Auto Discovered Policies
 
 ```bash
-./install.sh
+curl -s https://raw.githubusercontent.com/accuknox/tools/main/get_discovered_yamls.sh | bash
 ```
-## Uninstalation
+
+<details>
+  <summary>Output of `get_discovered_policies.sh`</summary>
+
+```bash
+❯ curl -s https://raw.githubusercontent.com/accuknox/tools/main/get_discovered_yamls.sh | bash
+Downloading discovered policies from pod=knoxautopolicy-6bf6c98dbb-pfwt9
+Got 38 cilium policies for namespace=default in file cilium_policies_default.yaml
+Got 4 cilium policies for namespace=explorer in file cilium_policies_explorer.yaml
+Got 13 cilium policies for namespace=kube-system in file cilium_policies_kube-system.yaml
+Got 38 knox policies for namespace=default in file knox_net_policies_default.yaml
+Got 4 knox policies for namespace=explorer in file knox_net_policies_explorer.yaml
+Got 13 knox policies for namespace=kube-system in file knox_net_policies_kube-system.yaml
+Got 146 kubearmor policies in file kubearmor_policies.yaml
 ```
-./uninstall.sh
+</details>
+
+## 5. Uninstall
+
+```
+curl -s https://raw.githubusercontent.com/accuknox/tools/main/uninstall.sh | bash
 ```
