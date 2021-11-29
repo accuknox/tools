@@ -4,9 +4,9 @@ podname=$(kubectl get pod -n explorer -l container=knoxautopolicy -o=jsonpath='{
 [[ $? -ne 0 ]] && echo "could not find knoxautopolicy pod" && exit 2
 echo "Downloading discovered policies from pod=$podname"
 
-network_policy()
+function network_policy()
 {
-	filelist=`kubectl exec -it -n explorer $podname -- ls -1 | grep ".*_policies_.*\.yaml"`
+	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep ".*_policies_.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No network policies discovered" && return
 	for f in `echo $filelist`; do
 		f=$(echo $f | tr -d '\r')
@@ -19,9 +19,9 @@ network_policy()
 	done
 }
 
-system_policy()
+function system_policy()
 {
-	filelist=`kubectl exec -it -n explorer $podname -- ls -1 | grep "kubearmor_policies\.yaml"`
+	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "kubearmor_policies\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No system policies discovered" && return 1
 	for f in `echo $filelist`; do
 		f=$(echo $f | tr -d '\r')
