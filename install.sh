@@ -80,6 +80,8 @@ installCilium() {
 	# PROJECT_ID="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $2}')"
 	# ZONE="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $3}')"
 	# CLUSTER_NAME="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $4}')"
+	kubectl get pod -A -l k8s-app=cilium | grep "cilium" >/dev/null 2>&1
+	[[ $? -eq 0 ]] && statusline AOK "cilium already installed" && return 0
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
 	cilium install
 	cilium hubble enable

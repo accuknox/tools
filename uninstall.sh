@@ -15,8 +15,10 @@ uninstallFeeder() {
 }
 
 uninstallCilium() {
+	kubectl get pod -A -l k8s-app=cilium | grep "cilium" >/dev/null 2>&1
+	[[ $? -ne 0 ]] && statusline AOK "cilium not installed" && return 0
 	statusline WAIT "uninstalling cilium"
-	helm uninstall cilium --namespace kube-system
+	cilium uninstall
 	statusline AOK "uninstalled cilium"
 }
 
@@ -38,4 +40,5 @@ uninstallCilium
 #handleKubearmorPrometheusClient delete
 handleKubearmor delete
 
-kubectl delete ns explorer
+kubectl get ns explorer >/dev/null 2>&1
+[[ $? -eq 0 ]] && kubectl delete ns explorer

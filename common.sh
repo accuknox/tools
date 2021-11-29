@@ -112,7 +112,7 @@ END
 handleKnoxAutoPolicy()
 {
 	[[ "$1" == "" ]] && echo "no operation specified, specify apply/delete" && return 1
-	kubectl get pod -n explorer -l container=knoxautopolicy | grep "knoxautopolicy" >/dev/null 2>&1
+	kubectl get pod -l container=knoxautopolicy | grep "knoxautopolicy" >/dev/null 2>&1
 	kap_install=$? #kap_install = 0 if installed already
 	[[ "$1" == "apply" ]] && [[ $kap_install -eq 0 ]] && \
 		statusline AOK "knoxautopolicy already installed" && return 0
