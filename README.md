@@ -83,7 +83,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/main/exam
 [Application Reference](https://github.com/GoogleCloudPlatform/microservices-demo)
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/main/examples/wordpress-mysql/wordpress-mysql-deployment.yaml
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/release/kubernetes-manifests.yaml
 ```
 </details>
 
