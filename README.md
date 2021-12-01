@@ -6,6 +6,8 @@ This install instructions allow you to setup sample cluster with:
 * Auto Policy Discovery Engine
 * Command line tools
 
+![Alt Text](res/k8s-auto-disco.png "topology")
+
 ## 1. Install sample k8s cluster
 
 <details>
