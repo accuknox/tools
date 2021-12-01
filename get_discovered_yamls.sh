@@ -6,7 +6,7 @@ echo "Downloading discovered policies from pod=$podname"
 
 function network_policy()
 {
-	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep ".*_policies_.*\.yaml"`
+	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "cilium_policies_.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No network policies discovered" && return
 	for f in `echo $filelist`; do
 		f=$(echo $f | tr -d '\r')
