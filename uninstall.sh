@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-. common.sh
+if [ -f "common.sh" ]; then
+	. common.sh
+else
+	source <(curl -s https://raw.githubusercontent.com/accuknox/tools/main/common.sh)
+fi
 
 uninstallMysql() {
 	kubectl get pod -n explorer -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-. common.sh
+if [ -f "common.sh" ]; then
+	. common.sh
+else
+	source <(curl -s https://raw.githubusercontent.com/accuknox/tools/main/common.sh)
+fi
 
 install_karmor_help()
 {
@@ -24,6 +28,11 @@ END
 
 check_prerequisites()
 {
+	command -v curl >/dev/null 2>&1 || 
+		{ 
+			statusline NOK "curl tool not found"
+			exit 1
+		}
 	command -v helm >/dev/null 2>&1 || 
 		{ 
 			statusline NOK "helm tool not found"
