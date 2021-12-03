@@ -156,6 +156,19 @@ END
 # Processing starts here
 [[ "$1" != "" ]] && usage
 
+function show_license() {
+	cat << EOF
+---=[License]=---
+1. KubeArmor is licensed under the Apache License, Version 2.0. For details check (https://github.com/kubearmor/KubeArmor/blob/main/LICENSE)
+2. The Cilium user space components are licensed under the Apache License, Version 2.0. The BPF code templates are licensed under the General Public License, Version 2.0.
+
+EOF
+    statusline WAIT "Please read the license ..."
+	sleep 3
+}
+
+show_license
+exit
 check_prerequisites
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
