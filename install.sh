@@ -168,7 +168,6 @@ EOF
 }
 
 show_license
-exit
 check_prerequisites
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
