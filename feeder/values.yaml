@@ -71,7 +71,7 @@ env:
  - name: MYSQL_PASSWORD
    value: password 
  - name: MYSQL_URL
-   value: mysql.accuknox-agents.svc.cluster.local 
+   value: mysql.explorer.svc.cluster.local 
  - name: MYSQL_PORT
    value: 3306
  - name: MYSQL_DATABASE
