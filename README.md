@@ -12,13 +12,13 @@ This install instructions allow you to setup sample cluster with:
 
 <details>
   <summary>Using k3s local cluster</summary>
-  
+
 #### Install k3s
-    
+
 ```
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--flannel-backend=none --disable traefik' sh -s - --write-kubeconfig-mode 644
 ```
-    
+
 #### Make k3s cluster config the default
 
 ```
@@ -50,14 +50,14 @@ kube-system   traefik-5ffb8d6846-w8clc                         1/1     Running  
 kube-system   cilium-operator-6bbdb895b5-ff752                 1/1     Running     0          12m
 kube-system   hubble-relay-84999fcb48-8d5ss                    1/1     Running     0          11m
 kube-system   cilium-wkgzn                                     1/1     Running     0          11m
-explorer      mysql-0                                          1/1     Running     0          10m
+accuknox-agents      mysql-0                                          1/1     Running     0          10m
 kube-system   kubearmor-67jtk                                  1/1     Running     0          8m34s
 kube-system   kubearmor-policy-manager-986bd8dbc-4s79d         2/2     Running     0          8m34s
 kube-system   kubearmor-host-policy-manager-5bcccfc4f5-gkbck   2/2     Running     0          8m34s
 kube-system   kubearmor-relay-645667c695-brzpg                 1/1     Running     0          8m34s
-explorer      knoxautopolicy-6bf6c98dbb-pfwt9                  1/1     Running     0          8m20s
+accuknox-agents      knoxautopolicy-6bf6c98dbb-pfwt9                  1/1     Running     0          8m20s
 ```
-    
+
 We have following installed:
 * kubearmor protection engine
 * cilium CNI
@@ -81,7 +81,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubearmor/KubeArmor/main/exam
 
 <details>
   <summary>Google "Online Boutique" Microservice Demo App</summary>
-    
+
 [Application Reference](https://github.com/GoogleCloudPlatform/microservices-demo)
 
 ```
@@ -102,10 +102,10 @@ curl -s https://raw.githubusercontent.com/accuknox/tools/main/get_discovered_yam
 ❯ curl -s https://raw.githubusercontent.com/accuknox/tools/main/get_discovered_yamls.sh | bash
 Downloading discovered policies from pod=knoxautopolicy-6bf6c98dbb-pfwt9
 Got 38 cilium policies for namespace=default in file cilium_policies_default.yaml
-Got 4 cilium policies for namespace=explorer in file cilium_policies_explorer.yaml
+Got 4 cilium policies for namespace=accuknox-agents in file cilium_policies_accuknox-agents.yaml
 Got 13 cilium policies for namespace=kube-system in file cilium_policies_kube-system.yaml
 Got 38 knox policies for namespace=default in file knox_net_policies_default.yaml
-Got 4 knox policies for namespace=explorer in file knox_net_policies_explorer.yaml
+Got 4 knox policies for namespace=accuknox-agents in file knox_net_policies_accuknox-agents.yaml
 Got 13 knox policies for namespace=kube-system in file knox_net_policies_kube-system.yaml
 Got 146 kubearmor policies in file kubearmor_policies.yaml
 ```

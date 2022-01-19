@@ -28,13 +28,13 @@ END
 
 check_prerequisites()
 {
-	command -v curl >/dev/null 2>&1 || 
-		{ 
+	command -v curl >/dev/null 2>&1 ||
+		{
 			statusline NOK "curl tool not found"
 			exit 1
 		}
-	command -v helm >/dev/null 2>&1 || 
-		{ 
+	command -v helm >/dev/null 2>&1 ||
+		{
 			echo "Use this command to install helm:"
 			echo "		curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
 			statusline NOK "helm tool not found"
@@ -61,11 +61,11 @@ check_prerequisites()
 }
 
 installMysql() {
-	kubectl get pod -n explorer -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
+	kubectl get pod -n accuknox-agents -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "mysql already installed" && return 0
     statusline WAIT "installing mysql"
     helm install --wait mysql bitnami/mysql --version 8.6.1 \
-		--namespace explorer \
+		--namespace accuknox-agents \
 		--set auth.user="test-user" \
 		--set auth.password="password" \
 		--set auth.rootPassword="password" \
@@ -74,7 +74,7 @@ installMysql() {
 }
 
 installFeeder(){
-    HELM_FEEDER="helm install feeder-service-cilium feeder --namespace=explorer --set image.repository=\"accuknox/test-feeder\" --set image.tag=\"latest\" "
+    HELM_FEEDER="helm install feeder-service-cilium feeder --namespace=accuknox-agents --set image.repository=\"accuknox/test-feeder\" --set image.tag=\"latest\" "
     case $PLATFORM in
         gke)
             HELM_FEEDER="${HELM_FEEDER} --set platform=gke"
@@ -96,9 +96,9 @@ installCilium() {
 	kubectl get pod -A -l k8s-app=cilium | grep "cilium" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "cilium already installed" && return 0
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
-	cilium install
-	cilium hubble enable
-	cilium status --wait --wait-duration 5m
+	cilium install -n accuknox-agents
+	cilium hubble enable --namespace accuknox-agents
+	cilium status --namespace accuknox-agents --wait --wait-duration 5m
 	statusline $? "cilium installation"
 : << 'END'
     case $PLATFORM in
@@ -145,14 +145,14 @@ END
 }
 
 installSpire(){
-    helm install spire spire --namespace=explorer
+    helm install spire spire --namespace=accuknox-agents
 }
 
 usage()
 {
 	cat << END
 Usage: [ENV VARS] $0"
-   KA_INSTALL_OPTS=<opts> ... karmor install <opts> to use (e.g., KA_INSTALL_OPTS="--image kubearmor/kubearmor:dev"
+   KA_INSTALL_OPTS="--namespace accuknox-agents" ... karmor install <opts> to use (e.g., KA_INSTALL_OPTS="--image kubearmor/kubearmor:dev"
 END
 	exit 0
 }
@@ -176,9 +176,9 @@ check_prerequisites
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
 
-kubectl get ns explorer >/dev/null 2>&1
-[[ $? -ne 0 ]] && kubectl create ns explorer
-statusline AOK "explorer namespace created/already present."
+kubectl get ns accuknox-agents >/dev/null 2>&1
+[[ $? -ne 0 ]] && kubectl create ns accuknox-agents
+statusline AOK "accuknox-agents namespace created/already present."
 
 autoDetectEnvironment
 

@@ -37,10 +37,10 @@ Typical output:
 ```
 ❯ ./get_discovered_yamls.sh
 Downloading discovered policies from pod=knoxautopolicy-74f5b5d65b-tv7v7
-Got 9 cilium policies for namespace=explorer in file cilium_policies_explorer.yaml
+Got 9 cilium policies for namespace=accuknox-agents in file cilium_policies_accuknox-agents.yaml
 Got 5 cilium policies for namespace=kube-system in file cilium_policies_kube-system.yaml
 Got 2 cilium policies for namespace=spire in file cilium_policies_spire.yaml
-Got 9 knox policies for namespace=explorer in file knox_policies_explorer.yaml
+Got 9 knox policies for namespace=accuknox-agents in file knox_policies_accuknox-agents.yaml
 Got 5 knox policies for namespace=kube-system in file knox_policies_kube-system.yaml
 Got 2 knox policies for namespace=spire in file knox_policies_spire.yaml
 ```

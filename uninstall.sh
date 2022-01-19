@@ -7,15 +7,15 @@ else
 fi
 
 uninstallMysql() {
-	kubectl get pod -n explorer -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
+	kubectl get pod -n accuknox-agents -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
 	[[ $? -ne 0 ]] && statusline AOK "no mysql found, skipping uninstall" && return 0
 	statusline WAIT "uninstalling mysql"
-	helm uninstall mysql --namespace explorer
+	helm uninstall mysql --namespace accuknox-agents
 	statusline AOK "uninstalling mysql"
 }
 
 uninstallFeeder() {
-	helm uninstall feeder-service-cilium --namespace explorer
+	helm uninstall feeder-service-cilium --namespace accuknox-agents
 }
 
 uninstallCilium() {
@@ -28,7 +28,7 @@ uninstallCilium() {
 
 uninstallSpire() {
 	echo "uninstalling Spire"
-	helm uninstall spire --namespace explorer
+	helm uninstall spire --namespace accuknox-agents
 }
 
 autoDetectEnvironment
@@ -44,5 +44,5 @@ uninstallCilium
 #handleKubearmorPrometheusClient delete
 handleKubearmor delete
 
-kubectl get ns explorer >/dev/null 2>&1
-[[ $? -eq 0 ]] && kubectl delete ns explorer
+kubectl get ns accuknox-agents >/dev/null 2>&1
+[[ $? -eq 0 ]] && kubectl delete ns accuknox-agents
