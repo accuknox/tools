@@ -22,7 +22,7 @@ function network_policy()
 		ns=${ns/.yaml/}
 		kubectl cp accuknox-agents/$podname:$f $f
 		cnt=`grep "kind:" $f | wc -l`
-		echo "Got $cnt $typ policies for namespace=$ns in file $f"
+		echo "Got $cnt $typ policies in file $f"
 	done
 }
 
