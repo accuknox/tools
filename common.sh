@@ -125,7 +125,11 @@ handleKnoxAutoPolicy()
 
 	statusline WAIT "$1 knoxautopolicy"
 	kubectl $1 -f $KNOXAUTOPOLICY_SVC
-	kubectl $1 -f $KNOXAUTOPOLICY_CFG
+	curl -s https://raw.githubusercontent.com/accuknox/auto-policy-discovery/dev/deployments/k8s/dev-config.yaml -o cm-dev-config.yaml
+	sed -i -e "s/db|file/db/; s/explorer/accuknox-agents/; s/kube-system/accuknox-agents/" cm-dev-config.yaml
+#	kubectl $1 -f $KNOXAUTOPOLICY_CFG
+	kubectl $1 -f cm-dev-config.yaml --namespace accuknox-agents
+	rm cm-dev-config.yaml
 	kubectl $1 -f $KNOXAUTOPOLICY_DEP
 	kubectl $1 -f $KNOXAUTOPOLICY_SA
 	statusline AOK "$1 knoxautopolicy"
