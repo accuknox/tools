@@ -35,6 +35,8 @@ check_prerequisites()
 		}
 	command -v helm >/dev/null 2>&1 || 
 		{ 
+			echo "Use this command to install helm:"
+			echo "		curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash"
 			statusline NOK "helm tool not found"
 			exit 1
 		}
@@ -54,6 +56,8 @@ check_prerequisites()
 			exit 1
 		}
 	statusline AOK "cilium cli tool found"
+	kubectl get config 2>/dev/null
+	statusline $? "k8s cluster accessibility"
 }
 
 installMysql() {
@@ -164,7 +168,7 @@ function show_license() {
 
 EOF
     statusline WAIT "Please read the license ..."
-	sleep 3
+	sleep 1
 }
 
 show_license

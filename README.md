@@ -16,7 +16,7 @@ This install instructions allow you to setup sample cluster with:
 #### Install k3s
     
 ```
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--flannel-backend=none' sh -s - --write-kubeconfig-mode 644
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--flannel-backend=none --disable traefik' sh -s - --write-kubeconfig-mode 644
 ```
     
 #### Make k3s cluster config the default
