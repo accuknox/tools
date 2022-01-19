@@ -56,7 +56,7 @@ check_prerequisites()
 			exit 1
 		}
 	statusline AOK "cilium cli tool found"
-	kubectl get config 2>/dev/null
+	kubectl config current-context view 2>/dev/null
 	statusline $? "k8s cluster accessibility"
 }
 
