@@ -39,23 +39,23 @@ This will install all the components.
 
  
 ```
-NAMESPACE     NAME                                             READY   STATUS      RESTARTS   AGE
-kube-system   helm-install-traefik-crd-gwlpt                   0/1     Completed   0          3h17m
-kube-system   helm-install-traefik-lzkqg                       0/1     Completed   1          3h17m
-kube-system   svclb-traefik-47bc4                              2/2     Running     2          3h9m
-kube-system   metrics-server-86cbb8457f-cw9jd                  1/1     Running     1          3h9m
-kube-system   local-path-provisioner-7c7846d5f8-kxdxj          1/1     Running     1          3h3m
-kube-system   coredns-7448499f4d-qk6pv                         1/1     Running     0          15m
-kube-system   traefik-5ffb8d6846-w8clc                         1/1     Running     1          3h3m
-kube-system   cilium-operator-6bbdb895b5-ff752                 1/1     Running     0          12m
-kube-system   hubble-relay-84999fcb48-8d5ss                    1/1     Running     0          11m
-kube-system   cilium-wkgzn                                     1/1     Running     0          11m
-accuknox-agents      mysql-0                                          1/1     Running     0          10m
-kube-system   kubearmor-67jtk                                  1/1     Running     0          8m34s
-kube-system   kubearmor-policy-manager-986bd8dbc-4s79d         2/2     Running     0          8m34s
-kube-system   kubearmor-host-policy-manager-5bcccfc4f5-gkbck   2/2     Running     0          8m34s
-kube-system   kubearmor-relay-645667c695-brzpg                 1/1     Running     0          8m34s
-accuknox-agents      knoxautopolicy-6bf6c98dbb-pfwt9                  1/1     Running     0          8m20s
+NAMESPACE         NAME                                                   READY   STATUS    RESTARTS   AGE
+accuknox-agents   cilium-gke-node-init-l9c6f                             1/1     Running   0          14m
+accuknox-agents   cilium-gke-node-init-wmsst                             1/1     Running   0          14m
+accuknox-agents   cilium-gke-node-init-wqb5z                             1/1     Running   0          14m
+accuknox-agents   cilium-l8qg9                                           1/1     Running   0          13m
+accuknox-agents   cilium-n287r                                           1/1     Running   0          13m
+accuknox-agents   cilium-operator-776958f5bb-vvc72                       1/1     Running   0          14m
+accuknox-agents   cilium-xt4bh                                           1/1     Running   0          13m
+accuknox-agents   hubble-relay-7c46d49cc5-pfk8h                          1/1     Running   0          12m
+accuknox-agents   knoxautopolicy-6bf6c98dbb-pfwt9                        1/1     Running   0          8m51s
+accuknox-agents   kubearmor-dxc7d                                        1/1     Running   0          9m5s
+accuknox-agents   kubearmor-host-policy-manager-5bcccfc4f5-lvdkd         2/2     Running   0          9m4s
+accuknox-agents   kubearmor-jkfsf                                        1/1     Running   0          9m5s
+accuknox-agents   kubearmor-nc6l6                                        1/1     Running   0          9m5s
+accuknox-agents   kubearmor-policy-manager-986bd8dbc-8cdch               2/2     Running   0          9m4s
+accuknox-agents   kubearmor-relay-645667c695-97nq6                       1/1     Running   0          9m5s
+accuknox-agents   mysql-0                                                1/1     Running   0          11m
 ```
 
 We have following installed:
