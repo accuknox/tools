@@ -29,7 +29,7 @@ function network_policy()
 function system_policy()
 {
 	trigger_policy_dump sys
-	filelist=`kubectl exec -n accuknox-agents $podname -- ls -1 | grep "kubearmor_policies\.yaml"`
+	filelist=`kubectl exec -n accuknox-agents $podname -- ls -1 | grep "kubearmor_policies.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No system policies discovered" && return 1
 	for f in `echo $filelist`; do
 		f=$(echo $f | tr -d '\r')

@@ -167,7 +167,7 @@ function show_license() {
 2. The Cilium user space components are licensed under the Apache License, Version 2.0. The BPF code templates are licensed under the General Public License, Version 2.0.
 
 EOF
-    statusline WAIT "Please read the license ..."
+    statusline AOK "Please read the license"
 	sleep 1
 }
 
