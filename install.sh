@@ -1,5 +1,22 @@
 #!/usr/bin/env bash
 
+export ns="knoxagents"
+while getopts ":n:" opt; do
+  case $opt in
+    n)
+	  ns=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Specify namespace" >&2
+      exit 1
+      ;;
+  esac
+done
+
 if [ -f "common.sh" ]; then
 	. common.sh
 else
@@ -61,11 +78,11 @@ check_prerequisites()
 }
 
 installMysql() {
-	kubectl get pod -n explorer -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
+	kubectl get pod -n $ns -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "mysql already installed" && return 0
     statusline WAIT "installing mysql"
     helm install --wait mysql bitnami/mysql --version 8.6.1 \
-		--namespace explorer \
+		--namespace $ns \
 		--set auth.user="test-user" \
 		--set auth.password="password" \
 		--set auth.rootPassword="password" \
@@ -74,7 +91,7 @@ installMysql() {
 }
 
 installFeeder(){
-    HELM_FEEDER="helm install feeder-service-cilium feeder --namespace=explorer --set image.repository=\"accuknox/test-feeder\" --set image.tag=\"latest\" "
+    HELM_FEEDER="helm install feeder-service-cilium feeder --namespace=$ns --set image.repository=\"accuknox/test-feeder\" --set image.tag=\"latest\" "
     case $PLATFORM in
         gke)
             HELM_FEEDER="${HELM_FEEDER} --set platform=gke"
@@ -96,9 +113,9 @@ installCilium() {
 	kubectl get pod -A -l k8s-app=cilium | grep "cilium" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "cilium already installed" && return 0
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
-	cilium install
-	cilium hubble enable
-	cilium status --wait --wait-duration 5m
+    cilium install -n $ns
+	cilium -n $ns hubble enable
+	cilium status -n $ns --wait --wait-duration 5m
 	statusline $? "cilium installation"
 : << 'END'
     case $PLATFORM in
@@ -111,9 +128,9 @@ installCilium() {
             --set operator.image.suffix=-ci \
             --set operator.image.tag=identity-solution \
             --set operator.image.useDigest=false \
-            --namespace kube-system \
+			--namespace $ns \
             --set nodeinit.enabled=true \
-            --set nodeinit.reconfigureKubelet=true \
+           --set nodeinit.reconfigureKubelet=true \
             --set nodeinit.removeCbrBridge=true \
             --set cni.binPath=/home/kubernetes/bin \
             --set gke.enabled=true \
@@ -127,7 +144,7 @@ installCilium() {
 
         *)
             helm install cilium cilium \
-            --namespace kube-system \
+			--namespace $ns \
             --set image.repository=docker.io/accuknox/cilium-ci \
             --set image.tag=3228007c8b07ad626cb16c80476e4846b4eb008e \
             --set operator.image.repository=docker.io/accuknox/operator \
@@ -145,20 +162,8 @@ END
 }
 
 installSpire(){
-    helm install spire spire --namespace=explorer
+    helm install spire spire --namespace=$ns
 }
-
-usage()
-{
-	cat << END
-Usage: [ENV VARS] $0"
-   KA_INSTALL_OPTS=<opts> ... karmor install <opts> to use (e.g., KA_INSTALL_OPTS="--image kubearmor/kubearmor:dev"
-END
-	exit 0
-}
-
-# Processing starts here
-[[ "$1" != "" ]] && usage
 
 function show_license() {
 	cat << EOF
@@ -176,9 +181,9 @@ check_prerequisites
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
 
-kubectl get ns explorer >/dev/null 2>&1
-[[ $? -ne 0 ]] && kubectl create ns explorer
-statusline AOK "explorer namespace created/already present."
+kubectl get ns $ns >/dev/null 2>&1
+[[ $? -ne 0 ]] && kubectl create ns $ns
+statusline AOK "$ns namespace created/already present."
 
 autoDetectEnvironment
 
@@ -193,3 +198,4 @@ handleKubearmor apply
 
 handleKnoxAutoPolicy apply
 #installSpire
+ 
