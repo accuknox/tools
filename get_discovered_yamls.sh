@@ -2,7 +2,6 @@
 
 podname=$(kubectl get pod -n explorer -l container=knoxautopolicy -o=jsonpath='{.items[0].metadata.name}')
 [[ $? -ne 0 ]] && echo "could not find knoxautopolicy pod" && exit 2
-echo "Downloading discovered policies from pod=$podname"
 
 function trigger_policy_dump()
 {
@@ -40,5 +39,28 @@ function system_policy()
 	done
 }
 
-network_policy
-system_policy
+usage()
+{
+	echo "$0 [options]"
+	echo -en "\t-f|--fetch [cilium|kubearmor] ... default [cilium|kubearmor]\n"
+	exit
+}
+
+parse_cmdargs()
+{
+	FETCH="cilium|kubearmor"
+    OPTS=`getopt -o hf: --long fetch:help -n 'parse-options' -- "$@"`
+    eval set -- "$OPTS"
+    while true; do
+        case "$1" in
+            -f | --fetch ) FETCH="$2"; shift 2;;
+            -h | --help ) usage; shift 2;;
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+}
+
+parse_cmdargs $*
+[[ "$FETCH" =~ .*cilium.* ]] && network_policy
+[[ "$FETCH" =~ .*kubearmor.* ]] && system_policy
