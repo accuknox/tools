@@ -11,8 +11,8 @@ function trigger_policy_dump()
 
 function network_policy()
 {
-	trigger_policy_dump net
 	kubectl exec -n explorer $podname -- bash -c "rm cilium_policies*.yaml"
+	trigger_policy_dump net
 	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "cilium_policies.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No network policies discovered" && return
 	for f in `echo $filelist`; do
@@ -28,9 +28,10 @@ function network_policy()
 
 function system_policy()
 {
-	trigger_policy_dump sys
 	kubectl exec -n explorer $podname -- bash -c "rm kubearmor_policies*.yaml"
-	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "kubearmor_policies.*\.yaml"`
+	trigger_policy_dump sys
+	[[ "$FILTER" == "" ]] && FILTER="kubearmor_policies.*\.yaml"
+	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "$FILTER"`
 	[[ "$filelist" == "" ]] && echo "No system policies discovered" && return 1
 	for f in `echo $filelist`; do
 		f=$(echo $f | tr -d '\r')
@@ -45,17 +46,19 @@ usage()
 {
 	echo "$0 [options]"
 	echo -en "\t-f|--fetch [cilium|kubearmor] ... default [cilium|kubearmor]\n"
+	echo -en "\t--filter [kubearmor_policies_default_*.yaml] ... default []\n"
 	exit
 }
 
 parse_cmdargs()
 {
 	FETCH="cilium|kubearmor"
-    OPTS=`getopt -o hf: --long fetch:help -n 'parse-options' -- "$@"`
+    OPTS=`getopt -o hf: --long filter:,fetch:,help -n 'parse-options' -- "$@"`
     eval set -- "$OPTS"
     while true; do
         case "$1" in
             -f | --fetch ) FETCH="$2"; shift 2;;
+            --filter ) FILTER="$2"; echo "USING $FILTER"; shift 2;;
             -h | --help ) usage; shift 2;;
             -- ) shift; break ;;
             * ) break ;;
