@@ -12,6 +12,7 @@ function trigger_policy_dump()
 function network_policy()
 {
 	trigger_policy_dump net
+	kubectl exec -n explorer $podname -- bash -c "rm cilium_policies*.yaml"
 	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "cilium_policies.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No network policies discovered" && return
 	for f in `echo $filelist`; do
@@ -28,6 +29,7 @@ function network_policy()
 function system_policy()
 {
 	trigger_policy_dump sys
+	kubectl exec -n explorer $podname -- bash -c "rm kubearmor_policies*.yaml"
 	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "kubearmor_policies.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No system policies discovered" && return 1
 	for f in `echo $filelist`; do
