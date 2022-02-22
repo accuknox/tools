@@ -45,7 +45,11 @@ main()
 	rm -rf $SRC/kubearmor_policies_*.yaml 2>/dev/null
 	YAMLNAME_FILTER="kubearmor_policies_default_${NS}_${CONTNAME}_.*.yaml"
 	if [ $K8S -ne 0 ]; then
-		curl -s https://raw.githubusercontent.com/accuknox/tools/main/get_discovered_yamls.sh | bash -s -- -f kubearmor --filter "$YAMLNAME_FILTER" 2>&1 >/dev/null || exit 1
+		if [ -f "get_discovered_yamls.sh" ]; then
+			./get_discovered_yamls.sh -f kubearmor --filter "$YAMLNAME_FILTER" 2>&1 >/dev/null || exit 1
+		else
+			curl -s https://raw.githubusercontent.com/accuknox/tools/main/get_discovered_yamls.sh | bash -s -- -f kubearmor --filter "$YAMLNAME_FILTER" 2>&1 >/dev/null || exit 1
+		fi
 	else
 		$BASE/convert_sys_policy.sh 2>&1 >/dev/null || exit 1
 	fi
