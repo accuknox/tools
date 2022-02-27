@@ -56,15 +56,13 @@ main()
 	newf=`ls -1 $SRC/kubearmor_policies_default_${NS}_${CONTNAME}_*.yaml` || exit 1
 
 	prevf="/tmp/previous.yaml"
+	disp=0
 	if [ -f $prevf ]; then
 #		[[ $(age $prevf) -gt 10 ]] && cp $newf $prevf #override prevf if older than 10sec
 		diff -q $prevf $newf > /dev/null
-		if [ $? -ne 0 ]; then
-			diff -y $prevf $newf | grep "^ *process" -A 1000 | colordiff
-		else
-			grep "^ *process" -A 1000 $newf
-		fi
+		[[ $? -ne 0 ]] && disp=1 && diff -y $prevf $newf | grep "^ *process" -A 1000 | colordiff
 	fi
+	[[ $disp -eq 0 ]] && grep "^ *process" -A 1000 $newf
 	cp $newf $prevf
 }
 
