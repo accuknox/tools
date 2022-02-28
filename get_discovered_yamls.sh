@@ -5,13 +5,13 @@ podname=$(kubectl get pod -n explorer -l container=knoxautopolicy -o=jsonpath='{
 
 function trigger_policy_dump()
 {
-	kubectl exec -n explorer $podname -- ls /convert_$1_policy.sh 2>&1 >/dev/null
-	[[ $? -eq 0 ]] && kubectl exec -n explorer $podname -- /convert_$1_policy.sh
+	kubectl exec -n explorer $podname -- bash -c "rm *_policies*.yaml 2>/dev/null && /convert_$1_policy.sh"
+	[[ $? -ne 0 ]] && echo "getting $1 policies failed" && exit 1
 }
 
 function network_policy()
 {
-	kubectl exec -n explorer $podname -- bash -c "rm cilium_policies*.yaml 2>/dev/null" 2>/dev/null
+#	kubectl exec -n explorer $podname -- bash -c "rm cilium_policies*.yaml 2>/dev/null" 2>/dev/null
 	trigger_policy_dump net
 	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "cilium_policies.*\.yaml"`
 	[[ "$filelist" == "" ]] && echo "No network policies discovered" && return
@@ -28,7 +28,7 @@ function network_policy()
 
 function system_policy()
 {
-	kubectl exec -n explorer $podname -- bash -c "rm kubearmor_policies*.yaml 2>/dev/null" 2>/dev/null
+#	kubectl exec -n explorer $podname -- bash -c "rm kubearmor_policies*.yaml 2>/dev/null" 2>/dev/null
 	trigger_policy_dump sys
 	[[ "$FILTER" == "" ]] && FILTER="kubearmor_policies.*\.yaml"
 	filelist=`kubectl exec -n explorer $podname -- ls -1 | grep "$FILTER"`
