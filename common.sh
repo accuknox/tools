@@ -49,7 +49,7 @@ autoDetectEnvironment(){
 
 annotate()
 {
-	ns_ignore_list=("kube-system" "explorer" "cilium" "kubearmor")
+	ns_ignore_list=("kube-system" "explorer" "cilium" "kubearmor" "knoxagents")
 	while read line; do
 		depnm=${line/ */}
 		depns=${line/* /}
@@ -73,7 +73,7 @@ handleKubearmor(){
 		if [ $? -eq 0 ]; then
 			statusline AOK "skipping ... existing kubearmor installation found"
 		else
-			karmor install ${KA_INSTALL_OPTS}
+			karmor install -n $ns
 			statusline $? "$1 kubearmor"
 		fi
 		# applyKubearmorVisibility	# This is not needed with latest kubearmor
@@ -118,10 +118,10 @@ handleKnoxAutoPolicy()
 		statusline AOK "knoxautopolicy already installed" && return 0
 	[[ "$1" == "delete" ]] && [[ $kap_install -ne 0 ]] && return 0
 	KNOXAUTOPOLICY_REPO="https://raw.githubusercontent.com/accuknox/auto-policy-discovery/dev/deployments/k8s"
-	KNOXAUTOPOLICY_SVC="$KNOXAUTOPOLICY_REPO/service.yaml --namespace explorer"
-	KNOXAUTOPOLICY_CFG="$KNOXAUTOPOLICY_REPO/dev-config.yaml --namespace explorer"
-	KNOXAUTOPOLICY_DEP="$KNOXAUTOPOLICY_REPO/deployment.yaml --namespace explorer"
-	KNOXAUTOPOLICY_SA="$KNOXAUTOPOLICY_REPO/serviceaccount.yaml --namespace explorer"
+	KNOXAUTOPOLICY_SVC="$KNOXAUTOPOLICY_REPO/service.yaml --namespace $ns"
+	KNOXAUTOPOLICY_CFG="$KNOXAUTOPOLICY_REPO/dev-config.yaml --namespace $ns"
+	KNOXAUTOPOLICY_DEP="$KNOXAUTOPOLICY_REPO/deployment.yaml --namespace $ns"
+	KNOXAUTOPOLICY_SA="$KNOXAUTOPOLICY_REPO/serviceaccount.yaml --namespace $ns" 
 
 	statusline WAIT "$1 knoxautopolicy"
 	kubectl $1 -f $KNOXAUTOPOLICY_SVC
