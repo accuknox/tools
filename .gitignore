@@ -1,2 +1,3 @@
 kubearmor_policies.yaml
 *_policies*.yaml
+bin/*
