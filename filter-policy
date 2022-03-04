@@ -1,0 +1,173 @@
+#!/bin/bash
+
+# Examples
+# ./filter-policy -f cilium_policies.yaml -l '^app: checkoutservice' -g checkoutservice.png -o checkoutservice.yaml
+# ./filter-policy -f cilium_policies.yaml -l '^app: .*' -g full.png -o full.yaml
+
+TMP="/tmp"
+DOT="$TMP/graph.dot"
+
+chk_cmd()
+{
+	if ! command -v $1 &>/dev/null; then
+		echo "<$1> command not found"
+		echo "$2"
+		exit
+	fi
+}
+
+prerequisites()
+{
+	chk_cmd yq "Download from https://github.com/mikefarah/yq"
+	chk_cmd csplit "Install util csplit"
+	[[ "$GRAPH" != "" ]] && chk_cmd dot "graphviz not found ... use <sudo apt install graphviz>"
+}
+
+usage()
+{
+	cat << EOF
+Usage: $0 <options>
+
+Options:
+-f | --file <yaml-file> ... Mandatory parameter
+-n | --namespace <namespace-filter> ... default is ".*"
+-l | --labels <label-filter> ... default is ".*"
+-g | --graph <graph-png-file>
+-o | --output <output-yaml-to-redirect-filtered-policies> ... default is stdout
+-h | --help <this-help>
+EOF
+	exit 1
+}
+
+parse_cmdargs()
+{
+	OPTS=`getopt -o n:l:f:o:g:h --long graph:,namespace:,label:,file:,output:,help -n 'parse-options' -- "$@"`
+	[[ $? -ne 0 ]] && usage
+	eval set -- "$OPTS"
+	NS_FILTER=".*"
+	LB_FILTER=".*"
+	while true; do
+		case "$1" in
+			-n | --namespace ) NS_FILTER="$2"; shift 2;;
+			-l | --label ) LB_FILTER="$2"; shift 2;;
+			-f | --file ) YAML="$2"; shift 2;;
+			-g | --graph ) GRAPH="$2"; shift 2;;
+			-o | --output ) OUT="$2"; [[ -f $OUT ]] && rm -f $OUT; shift 2;;
+			-h | --help ) usage; shift 1;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+	[[ "$YAML" == "" ]] && echo "Need yaml file as input" && usage
+	echo "Input YAML=$YAML"
+	echo "Namespace Filter=$NS_FILTER"
+	echo "Label Filter=$LB_FILTER"
+}
+
+split_files()
+{
+	wdir="$TMP/tmp"
+	mkdir -p $wdir
+	rm -f $wdir/*
+	csplit -s -z --prefix="$wdir/policy-" --suffix-format="%02d.yaml" $YAML '/---/' '{*}'
+	[[ $? -ne 0 ]] && echo "unable to split policy files" && exit 2
+}
+
+getEdgeColor()
+{
+	edgecolor="grey"
+	[[ "$tgtprot" == "UDP" ]] && edgecolor="green"
+	[[ "$tgtprot" == "TCP" ]] && edgecolor="blue"
+}
+
+declare -A rules
+
+getIngressRule()
+{
+	rule=`yq -e eval ".spec.ingress[$1]" $f 2>/dev/null`
+	tgtlbls=`echo "$rule" | yq -e eval ".fromEndpoints[0].matchLabels" - 2>/dev/null`
+	[[ $? -ne 0 ]] && return 1
+	tgtlbls=`echo "$tgtlbls" | grep -v "^k8s:"`
+	tgtns=`echo "$rule" | yq -e eval ".fromEndpoints[0].matchLabels.\"k8s:io.kubernetes.pod.namespace\"" - 2>/dev/null`
+	[[ $? -ne 0 ]] && tgtns="default"
+	tgtport=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].port" - 2>/dev/null`
+	tgtprot=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].protocol" - 2>/dev/null`
+	getEdgeColor
+
+	str="\"$tgtns\n$tgtlbls\" -> \"$eps_ns\" [label = \"$tgtprot/$tgtport\""
+	[[ "${rules[$str]}" == "1" ]] && return
+	rules["$str"]="1"
+	echo "$str color=\"$edgecolor\"];" >> $DOT
+}
+
+getEgressRule()
+{
+	rule=`yq -e eval ".spec.egress[$1]" $f 2>/dev/null`
+	[[ $? -ne 0 ]] && return 1
+	tgtlbls=`echo "$rule" | yq -e eval ".toEndpoints[0].matchLabels" - 2>/dev/null`
+	[[ $? -ne 0 ]] && return 1
+	tgtlbls=`echo "$tgtlbls" | grep -v "^k8s:"`
+	tgtns=`echo "$rule" | yq -e eval ".toEndpoints[0].matchLabels.\"k8s:io.kubernetes.pod.namespace\"" - 2>/dev/null`
+	[[ $? -ne 0 ]] && tgtns="default"
+	tgtport=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].port" - 2>/dev/null`
+	tgtprot=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].protocol" - 2>/dev/null`
+	getEdgeColor
+
+	str="\"$eps_ns\" -> \"$tgtns\n$tgtlbls\" [label = \"$tgtprot/$tgtport\""
+	[[ "${rules[$str]}" == "1" ]] && return
+	rules["$str"]="1"
+	echo "$str color=\"$edgecolor\"];" >> $DOT
+}
+
+handle_policy()
+{
+	[[ "$OUT" != "" ]] && cat $f >> $OUT
+#	cat $f
+	for((i=0;;i++)); do
+		unset tgtlbls, tgtport
+		getEgressRule $i
+		[[ $? -ne 0 ]] && break
+	done
+	for((i=0;;i++)); do
+		unset tgtlbls, tgtport
+		getIngressRule $i
+		[[ $? -ne 0 ]] && break
+	done
+}
+
+filter_net_policy()
+{
+	flist=`find $wdir -type f -name "policy-*.yaml"`
+	totalCnt=`echo "$flist" | wc -l`
+	matchCnt=0
+	c=0
+	echo -en "digraph G {\noverlap=false;\n" > $DOT
+	for f in $flist; do
+		echo -en "processed $c/$totalCnt ... matches $matchCnt       \r"
+		((c++))
+		kind=`yq eval '.kind' $f`
+		[[ "$kind" != "CiliumNetworkPolicy" ]] && continue
+		ns=`yq eval '.metadata.namespace' $f`
+		eps=`yq eval '.spec.endpointSelector.matchLabels' $f`
+		[[ ! $ns =~ $NS_FILTER ]] && continue
+		[[ ! $eps =~ $LB_FILTER ]] && continue
+		eps_ns="$ns\n$eps"
+		echo "\"$eps_ns\" [style=\"filled\";fillcolor=\"lightgrey\"]" >> $DOT
+		((matchCnt++))
+		handle_policy $f
+	done
+	echo "processed $c/$totalCnt ... matches $matchCnt       "
+	echo "}" >> $DOT
+	[[ "$GRAPH" != "" ]] && neato -Tpng $DOT -o $GRAPH
+}
+
+main()
+{
+	prerequisites
+	split_files
+	filter_net_policy
+}
+
+parse_cmdargs "$@"
+main
+
