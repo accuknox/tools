@@ -222,6 +222,7 @@ EOF
 		convert_puml
 		rm -f $PKGF $PUML
 	fi
+	rm -f namespace_*
 }
 
 # $1 -> indentation point
