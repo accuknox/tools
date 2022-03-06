@@ -35,7 +35,9 @@ Usage: $0 <options>
 Options:
 -f | --file <yaml-file> ... Mandatory parameter
 -n | --namespace <namespace-filter> ... default is ".*"
+-N | --exclude-namespace <namespace-filter>
 -l | --labels <label-filter> ... default is ".*"
+-L | --exclude-labels <label-filter>
 -g | --graph <graph-png-file>
 -o | --output <output-yaml-to-redirect-filtered-policies> ... default is stdout
 -h | --help <this-help>
@@ -45,7 +47,7 @@ EOF
 
 parse_cmdargs()
 {
-	OPTS=`getopt -o n:l:f:o:g:h --long graph:,namespace:,label:,file:,output:,help -n 'parse-options' -- "$@"`
+	OPTS=`getopt -o N:L:n:l:f:o:g:h --long exclude-namespace:,exclude-labels:,graph:,namespace:,label:,file:,output:,help -n 'parse-options' -- "$@"`
 	[[ $? -ne 0 ]] && usage
 	eval set -- "$OPTS"
 	NS_FILTER=".*"
@@ -53,7 +55,9 @@ parse_cmdargs()
 	while true; do
 		case "$1" in
 			-n | --namespace ) NS_FILTER="$2"; shift 2;;
+			-N | --exclude-namespace ) XNS_FILTER="$2"; shift 2;;
 			-l | --label ) LB_FILTER="$2"; shift 2;;
+			-L | --exclude-labels ) XLB_FILTER="$2"; shift 2;;
 			-f | --file ) YAML="$2"; shift 2;;
 			-g | --graph ) GRAPH="$2"; shift 2;;
 			-o | --output ) OUT="$2"; [[ -f $OUT ]] && rm -f $OUT; shift 2;;
@@ -65,7 +69,9 @@ parse_cmdargs()
 	[[ "$YAML" == "" ]] && echo "Need yaml file as input" && usage
 	echo "Input YAML=$YAML"
 	echo "Namespace Filter=$NS_FILTER"
+	[[ "$XNS_FILTER" != "" ]] && echo "Exclude Namespace Filter=$XNS_FILTER"
 	echo "Label Filter=$LB_FILTER"
+	[[ "$XLB_FILTER" != "" ]] && echo "Exclude Label Filter=$XLB_FILTER"
 }
 
 split_files()
@@ -103,6 +109,9 @@ getIngressRule()
 	[[ "${rules[$str]}" == "1" ]] && return
 	rules["$str"]="1"
 	echo "$str color=\"$edgecolor\"];" >> $DOT
+
+	add_label_ns "$tgtns" "$tgtlbls"
+	echo "[$tgtlbls] -[#$edgecolor]-> [$eps] : $tgtprot/$tgtport" >> $PUML
 }
 
 getEgressRule()
@@ -116,18 +125,20 @@ getEgressRule()
 	[[ $? -ne 0 ]] && tgtns="default"
 	tgtport=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].port" - 2>/dev/null`
 	tgtprot=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].protocol" - 2>/dev/null`
-	getEdgeColor
 
+	getEdgeColor
 	str="\"$eps_ns\" -> \"$tgtns\n$tgtlbls\" [label = \"$tgtprot/$tgtport\""
 	[[ "${rules[$str]}" == "1" ]] && return
 	rules["$str"]="1"
 	echo "$str color=\"$edgecolor\"];" >> $DOT
+
+	add_label_ns "$tgtns" "$tgtlbls"
+	echo "[$eps] -[#$edgecolor]-> [$tgtlbls] : $tgtprot/$tgtport" >> $PUML
 }
 
 handle_net_policy()
 {
 	[[ "$OUT" != "" ]] && cat $f >> $OUT
-#	cat $f
 	for((i=0;;i++)); do
 		unset tgtlbls, tgtport
 		getEgressRule $i
@@ -140,12 +151,36 @@ handle_net_policy()
 	done
 }
 
+convert_puml()
+{
+#	cat $PUML
+	java -jar $PUML_JAR $PUML -output "$PWD"
+	[[ "$GRAPH" != "" ]] && mv ${PUML/.puml/.png} $GRAPH
+}
+
+add_label_ns()
+{
+	fname="namespace_$1"
+	if [ -f $fname ]; then
+		grep "\[$2\]" $fname 2>&1 >/dev/null
+		if [ $? -eq 0 ]; then
+			grep "\[$2\].*$3" $fname 2>&1 >/dev/null
+			[[ $? -eq 0 ]] && return
+			sed -i "s/\[$2\]/[$2] $3/g" $fname
+		fi
+	fi
+	echo "[$2] $3" >> $fname
+}
+
 filter_net_policy()
 {
 	flist=`find $wdir -type f -name "policy-*.yaml"`
 	totalCnt=`echo "$flist" | wc -l`
 	matchCnt=0
 	c=0
+	PUML="net-policy.puml"
+	rm -f namespace_*
+	rm -f $PUML
 	echo -en "digraph G {\noverlap=false;\n" > $DOT
 	for f in $flist; do
 		echo -en "processed $c/$totalCnt ... matches $matchCnt       \r"
@@ -155,15 +190,38 @@ filter_net_policy()
 		ns=`yq eval '.metadata.namespace' $f`
 		eps=`yq eval '.spec.endpointSelector.matchLabels' $f`
 		[[ ! $ns =~ $NS_FILTER ]] && continue
+		[[ "$XNS_FILTER" != "" ]] && [[ $ns =~ $XNS_FILTER ]] && continue
 		[[ ! $eps =~ $LB_FILTER ]] && continue
+		[[ "$XLB_FILTER" != "" ]] && [[ $eps =~ $XLB_FILTER ]] && continue
 		eps_ns="$ns\n$eps"
 		echo "\"$eps_ns\" [style=\"filled\";fillcolor=\"lightgrey\"]" >> $DOT
+		add_label_ns "$ns" "$eps" "#Lightblue"
 		((matchCnt++))
 		handle_net_policy $f
 	done
 	echo "processed $c/$totalCnt ... matches $matchCnt       "
 	echo "}" >> $DOT
-	[[ "$GRAPH" != "" ]] && neato -Tpng $DOT -o $GRAPH
+	if [ "$GRAPH" != "" ]; then
+		neato -Tpng $DOT -o $GRAPH
+
+		echo "@enduml" >> $PUML
+
+		PKGF="package-namespace.puml"
+		echo "@startuml" > $PKGF
+		for fns in `ls -1 namespace_* 2>/dev/null`; do
+			ns=${fns/*_/}
+			cat << EOF >> $PKGF
+package "namespace: $ns" {
+`cat $fns`
+}
+EOF
+		done
+		cat $PKGF
+		echo "$(cat $PKGF $PUML)" > $PUML
+		GRAPH="$GRAPH.puml.png"
+		convert_puml
+		rm -f $PKGF $PUML
+	fi
 }
 
 # $1 -> indentation point
@@ -243,7 +301,7 @@ handle_network_set()
 
 handle_sys_policy()
 {
-	PUML="policy.puml"
+	PUML="sys-policy.puml"
 
 	# policy name
 	name=`yq -e eval '.metadata.name' $f`
@@ -271,9 +329,8 @@ handle_sys_policy()
 	handle_network_set
 
 	echo "@endyaml" >> $PUML
-	cat $PUML
-	java -jar $PUML_JAR $PUML -output "$PWD"
-	[[ "$GRAPH" != "" ]] && mv ${PUML/.puml/.png} $GRAPH
+
+	convert_puml
 }
 
 filter_sys_policy()
