@@ -217,7 +217,8 @@ package "namespace: $ns" {
 EOF
 		done
 		cat $PKGF
-		echo "$(cat $PKGF $PUML)" > $PUML
+		cat $PKGF $PUML > $PUML.tmp
+		mv $PUML.tmp $PUML
 		GRAPH="$GRAPH.puml.png"
 		convert_puml
 		rm -f $PKGF $PUML
