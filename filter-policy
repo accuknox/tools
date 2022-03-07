@@ -24,7 +24,7 @@ prerequisites()
 	[[ "$GRAPH" != "" ]] && chk_cmd java "java not found"
 	[[ "$GRAPH" != "" ]] && chk_cmd dot "graphviz not found ... use <sudo apt install graphviz>"
 	PUML_JAR=`ls -1 plantuml*.jar`
-	[[ "$GRAPH" != "" ]] && [[ "$PUML_JAR" == "" ]] && echo "need plantuml jar in current folder. Download from https://plantuml.com/download"
+	[[ "$GRAPH" != "" ]] && [[ "$PUML_JAR" == "" ]] && echo "need plantuml jar in current folder. Download from https://plantuml.com/download" && exit 1
 }
 
 usage()
