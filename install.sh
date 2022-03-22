@@ -96,8 +96,8 @@ installCilium() {
 	kubectl get pod -A -l k8s-app=cilium | grep "cilium" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "cilium already installed" && return 0
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
-	cilium install
-	cilium status --wait --wait-duration 5m
+	cilium install --wait --wait-duration 5m
+	kubectl wait --for=condition=ready pod -l k8s-app=cilium --timeout=60s --namespace kube-system
 	cilium hubble enable
 	statusline $? "cilium installation"
 : << 'END'
