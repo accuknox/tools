@@ -97,8 +97,8 @@ installCilium() {
 	[[ $? -eq 0 ]] && statusline AOK "cilium already installed" && return 0
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
 	cilium install
-	cilium hubble enable
 	cilium status --wait --wait-duration 5m
+	cilium hubble enable
 	statusline $? "cilium installation"
 : << 'END'
     case $PLATFORM in
