@@ -5,7 +5,7 @@ podname=$(kubectl get pod -n explorer -l container=knoxautopolicy -o=jsonpath='{
 
 function trigger_policy_dump()
 {
-	kubectl exec -n explorer $podname -- bash -c "rm *_policies*.yaml 2>/dev/null; /convert_$1_policy.sh"
+	kubectl exec -n explorer $podname -- bash -c "rm *_policies*.yaml 2>/dev/null; /convert_$1_policy.sh > /dev/null"
 	[[ $? -ne 0 ]] && echo "getting $1 policies failed" && exit 1
 }
 
