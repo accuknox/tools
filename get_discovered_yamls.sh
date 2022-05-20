@@ -1,6 +1,6 @@
 #!/bin/bash
 
-podname=$(kubectl get pod -n explorer -l container=knoxautopolicy -o=jsonpath='{.items[0].metadata.name}')
+podname=$(kubectl get pod -n explorer -l container=knoxautopolicy -o=jsonpath='{.items[0].metadata.name}' --field-selector=status.phase==Running)
 [[ $? -ne 0 ]] && echo "could not find knoxautopolicy pod" && exit 2
 
 function trigger_policy_dump()
