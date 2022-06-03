@@ -26,6 +26,15 @@ install_cilium_help()
 END
 }
 
+install_cilium_cli()
+{
+	echo "Installing cilium cli tool"
+	curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/download/v0.11.7/cilium-linux-amd64.tar.gz{,.sha256sum}
+	sha256sum --check cilium-linux-amd64.tar.gz.sha256sum
+	sudo tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
+	rm cilium-linux-amd64.tar.gz{,.sha256sum}
+}
+
 check_prerequisites()
 {
 	command -v curl >/dev/null 2>&1 || 
@@ -48,14 +57,6 @@ check_prerequisites()
 			exit 1
 		}
 	statusline AOK "karmor cli tool found"
-	command -v cilium >/dev/null 2>&1 ||
-		{
-			install_cilium_help
-			echo "Require 'cilium' cli tool."
-			statusline NOK "cilium cli tool not found"
-			exit 1
-		}
-	statusline AOK "cilium cli tool found"
 	kubectl config current-context view 2>/dev/null
 	statusline $? "k8s cluster accessibility"
 }
@@ -87,18 +88,40 @@ installFeeder(){
     eval "$HELM_FEEDER"
 }
 
+prepare_cilium_cmd()
+{
+	CILIUM_IMAGE="docker.io/accuknox/cilium:latest"
+	case $PLATFORM in
+		eks)
+            CILIUM_OP_IMAGE="docker.io/accuknox/cilium-operator-aws:latest"
+			CLUSTER_NAME="$(echo $CURRENT_CONTEXT_NAME | tr [:upper:] [:lower:] | tr [:punct:] -)"
+			CILIUM_CMD="cilium install --cluster-name $CLUSTER_NAME --wait --wait-duration 5m"
+			;;
+		aks)
+			if [[ -z "$CILIUM_AZURE_OPTS" ]]; then
+				echo "Azure paramaters required for cilium installation are not provided."
+				echo "For AKS, please provide Azure Resource Group in the following format:"
+				echo "\t CILIUM_AZURE_OPTS=\"--azure-resource-group VALUE\" $0"
+				exit 1 
+			fi
+			CILIUM_OP_IMAGE="docker.io/accuknox/cilium-operator-azure:latest"
+			CILIUM_CMD="cilium install  $CILIUM_AZURE_OPTS --wait --wait-duration 5m"
+			;;
+		*)
+			CILIUM_OP_IMAGE="docker.io/accuknox/cilium-operator-generic:latest"
+			CILIUM_CMD="cilium install  --wait --wait-duration 5m"
+			;;
+	esac
+}
+
 installCilium() {
-    # FIXME this assumes that the project id, zone, and cluster name can't have
-    # any underscores b/w them which might be a wrong assumption
-	# PROJECT_ID="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $2}')"
-	# ZONE="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $3}')"
-	# CLUSTER_NAME="$(echo "$CURRENT_CONTEXT_NAME" | awk -F '_' '{print $4}')"
 	kubectl get pod -A -l k8s-app=cilium | grep "cilium" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "cilium already installed" && return 0
     statusline WAIT "Installing Cilium on $PLATFORM Kubernetes Cluster"
-	cilium install --wait --wait-duration 5m
+    prepare_cilium_cmd
+	eval $CILIUM_CMD
 	kubectl wait --for=condition=ready pod -l k8s-app=cilium --timeout=60s --namespace kube-system
-	cilium hubble enable
+	cilium hubble enable --relay-image quay.io/cilium/hubble-relay:stable
 	statusline $? "cilium installation"
 : << 'END'
     case $PLATFORM in
@@ -152,7 +175,9 @@ usage()
 {
 	cat << END
 Usage: [ENV VARS] $0"
-   KA_INSTALL_OPTS=<opts> ... karmor install <opts> to use (e.g., KA_INSTALL_OPTS="--image kubearmor/kubearmor:dev"
+	PLATFORM=VAL             ... Installation environment { aks | eks | gke | k3d | kind | minikube | self-managed }
+	KA_INSTALL_OPTS=<opts>   ... karmor install <opts> to use (e.g., KA_INSTALL_OPTS="--image kubearmor/kubearmor:dev"
+	CILIUM_AZURE_OPTS=<opts> ... Parameters for Cilium installation in AKS (e.g., CILIUM_AZURE_OPTS="--azure-resource-group VALUE")
 END
 	exit 0
 }
@@ -173,6 +198,7 @@ EOF
 
 show_license
 check_prerequisites
+install_cilium_cli
 helm repo add bitnami https://charts.bitnami.com/bitnami &> /dev/null
 helm repo update
 

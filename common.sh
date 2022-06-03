@@ -24,6 +24,12 @@ statusline()
 }
 
 autoDetectEnvironment(){
+	if [[ ! -z "$PLATFORM" ]]; then
+		statusline AOK "User specified platform $PLATFORM"
+		return
+	fi
+
+
 	CURRENT_CONTEXT_NAME="$(kubectl config current-context view)"
 	[[ $? -ne 0 ]] && echo "kubectl failed. Do you have a k8s cluster configured?" && exit 1
 	PLATFORM="$CURRENT_CONTEXT_NAME"
@@ -37,13 +43,22 @@ autoDetectEnvironment(){
 		PLATFORM="minikube"
 	elif [[ $CURRENT_CONTEXT_NAME =~ ^gke_.* ]]; then
 		PLATFORM="gke"
+	elif [[ $CURRENT_CONTEXT_NAME =~ ^eks-.* ]]; then
+		PLATFORM="eks"
+	elif [[ $CURRENT_CONTEXT_NAME =~ ^arn:aws:eks.* ]]; then
+		PLATFORM="eks"
 	elif [[ $CURRENT_CONTEXT_NAME =~ ^kind-.* ]]; then
 		PLATFORM="kind"
 	elif [[ $CURRENT_CONTEXT_NAME =~ ^k3d-.* ]]; then
 		PLATFORM="k3d"
-        elif [[ $CURRENT_CONTEXT_NAME =~ ^kubernetes-.* ]]; then
-                PLATFORM="self-managed"
-        fi
+	elif [[ $CURRENT_CONTEXT_NAME =~ ^kubernetes-.* ]]; then
+		PLATFORM="self-managed"
+	else
+		echo "Failed to auto detect the platform."
+		echo "Please proivde the name of the platform in the following format:"
+		echo "\t PLATFORM={aks | eks | gke | k3d | kind | minikube | self-managed} $0"
+		exit 1
+	fi
 	statusline AOK "detected platform $PLATFORM"
 }
 
