@@ -2,7 +2,7 @@ ns=demo
 
 get_pod_name()
 {
-    POD_NAME=$(kubectl get pods -n $ns -l "app=checkoutservice" -o jsonpath='{.items[0].metadata.name}')
+    POD_NAME=$(kubectl get pods -n $ns -l "$1" -o jsonpath='{.items[0].metadata.name}')
 }
 
 get_pod_name "app=checkoutservice"
