@@ -1,27 +1,23 @@
-ns=demo
+ns=${1:-default}
+
+echo "Annotating GKE microservice demo pods in namespace $ns"
 
 get_pod_name()
 {
     POD_NAME=$(kubectl get pods -n $ns -l "$1" -o jsonpath='{.items[0].metadata.name}')
+	[[ $? -ne 0 ]] && echo "unable to get pod name for label=\"$1\" ns=$ns" && exit 1
 }
 
-get_pod_name "app=checkoutservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/5050/TCP/HTTP>"
+annotate_l7_vis()
+{
+	get_pod_name $1
+	kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/$2/TCP/HTTP>"
+}
 
-get_pod_name "app=paymentservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/50051/TCP/HTTP>"
-
-get_pod_name "app=emailservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/8080/TCP/HTTP>"
-
-get_pod_name "app=productcatalogservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/3550/TCP/HTTP>"
-
-get_pod_name "app=shippingservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/50051/TCP/HTTP>"
-
-get_pod_name "app=cartservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/7070/TCP/HTTP>"
-
-get_pod_name "app=currencyservice"
-kubectl annotate pod $POD_NAME -n $ns io.cilium.proxy-visibility="<Egress/53/UDP/DNS>,<Ingress/7000/TCP/HTTP>"
+annotate_l7_vis "app=checkoutservice" 5050
+annotate_l7_vis "app=paymentservice" 50051
+annotate_l7_vis "app=emailservice" 8080
+annotate_l7_vis "app=productcatalogservice" 3550
+annotate_l7_vis "app=shippingservice" 50051
+annotate_l7_vis "app=cartservice" 7070
+annotate_l7_vis "app=currencyservice" 7000
