@@ -65,7 +65,7 @@ installMysql() {
 	kubectl get pod -n explorer -l "app.kubernetes.io/name=mysql" | grep "mysql" >/dev/null 2>&1
 	[[ $? -eq 0 ]] && statusline AOK "mysql already installed" && return 0
     statusline WAIT "installing mysql"
-    helm install --wait mysql bitnami/mysql --version 8.6.1 \
+    helm install --wait mysql bitnami/mysql \
 		--namespace explorer \
 		--set auth.user="test-user" \
 		--set auth.password="password" \
@@ -90,26 +90,19 @@ installFeeder(){
 
 prepare_cilium_cmd()
 {
-	CILIUM_IMAGE="docker.io/accuknox/cilium:latest"
+	CLUSTER_NAME="$(echo $CURRENT_CONTEXT_NAME | tr [:upper:] [:lower:] | tr [:punct:] -)"
 	case $PLATFORM in
-		eks)
-            CILIUM_OP_IMAGE="docker.io/accuknox/cilium-operator-aws:latest"
-			CLUSTER_NAME="$(echo $CURRENT_CONTEXT_NAME | tr [:upper:] [:lower:] | tr [:punct:] -)"
-			CILIUM_CMD="cilium install --cluster-name $CLUSTER_NAME --wait --wait-duration 5m"
-			;;
 		aks)
 			if [[ -z "$CILIUM_AZURE_OPTS" ]]; then
 				echo "Azure paramaters required for cilium installation are not provided."
 				echo "For AKS, please provide Azure Resource Group in the following format:"
-				echo "\t CILIUM_AZURE_OPTS=\"--azure-resource-group VALUE\" $0"
+				echo -e "\t CILIUM_AZURE_OPTS=\"--azure-resource-group VALUE\" $0"
 				exit 1 
 			fi
-			CILIUM_OP_IMAGE="docker.io/accuknox/cilium-operator-azure:latest"
-			CILIUM_CMD="cilium install  $CILIUM_AZURE_OPTS --wait --wait-duration 5m"
+			CILIUM_CMD="cilium install --cluster-name $CLUSTER_NAME $CILIUM_AZURE_OPTS --wait --wait-duration 5m"
 			;;
 		*)
-			CILIUM_OP_IMAGE="docker.io/accuknox/cilium-operator-generic:latest"
-			CILIUM_CMD="cilium install  --wait --wait-duration 5m"
+			CILIUM_CMD="cilium install --cluster-name $CLUSTER_NAME --wait --wait-duration 5m"
 			;;
 	esac
 }

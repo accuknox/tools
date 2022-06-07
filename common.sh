@@ -24,14 +24,15 @@ statusline()
 }
 
 autoDetectEnvironment(){
+	CURRENT_CONTEXT_NAME="$(kubectl config current-context view)"
+	[[ $? -ne 0 ]] && echo "kubectl failed. Do you have a k8s cluster configured?" && exit 1
+	statusline AOK "Cluster name $CURRENT_CONTEXT_NAME"
+
 	if [[ ! -z "$PLATFORM" ]]; then
 		statusline AOK "User specified platform $PLATFORM"
 		return
 	fi
 
-
-	CURRENT_CONTEXT_NAME="$(kubectl config current-context view)"
-	[[ $? -ne 0 ]] && echo "kubectl failed. Do you have a k8s cluster configured?" && exit 1
 	PLATFORM="$CURRENT_CONTEXT_NAME"
 	if [[ -z "$CURRENT_CONTEXT_NAME" ]]; then
 		echo "no configuration has been provided"
@@ -56,7 +57,7 @@ autoDetectEnvironment(){
 	else
 		echo "Failed to auto detect the platform."
 		echo "Please proivde the name of the platform in the following format:"
-		echo "\t PLATFORM={aks | eks | gke | k3d | kind | minikube | self-managed} $0"
+		echo -e "\t PLATFORM={aks | eks | gke | k3d | kind | minikube | self-managed} $0"
 		exit 1
 	fi
 	statusline AOK "detected platform $PLATFORM"
