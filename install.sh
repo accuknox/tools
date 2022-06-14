@@ -203,7 +203,7 @@ autoDetectEnvironment
 
 installCilium
 handleLocalStorage apply
-installMysql
+#installMysql
 #installFeeder
 #handlePrometheusAndGrafana apply
 
