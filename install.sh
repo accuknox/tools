@@ -30,8 +30,8 @@ install_cilium_cli()
 {
 	echo "Installing cilium cli tool"
 	curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/download/v0.11.7/cilium-linux-amd64.tar.gz{,.sha256sum}
-	sha256sum --check cilium-linux-amd64.tar.gz.sha256sum
 	sudo tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
+	[[ $? -ne 0 ]] && install_cilium_help && exit 1
 	rm cilium-linux-amd64.tar.gz{,.sha256sum}
 }
 
@@ -41,6 +41,10 @@ check_prerequisites()
 		{ 
 			statusline NOK "curl tool not found"
 			exit 1
+		}
+	command -v cilium >/dev/null 2>&1 || 
+		{ 
+			install_cilium_cli
 		}
 	command -v helm >/dev/null 2>&1 || 
 		{ 

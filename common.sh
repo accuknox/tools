@@ -134,16 +134,10 @@ handleKnoxAutoPolicy()
 		statusline AOK "knoxautopolicy already installed" && return 0
 	[[ "$1" == "delete" ]] && [[ $kap_install -ne 0 ]] && return 0
 	KNOXAUTOPOLICY_REPO="https://raw.githubusercontent.com/accuknox/auto-policy-discovery/dev/deployments/k8s"
-	KNOXAUTOPOLICY_SVC="$KNOXAUTOPOLICY_REPO/service.yaml --namespace explorer"
-	KNOXAUTOPOLICY_CFG="$KNOXAUTOPOLICY_REPO/dev-config.yaml --namespace explorer"
 	KNOXAUTOPOLICY_DEP="$KNOXAUTOPOLICY_REPO/deployment.yaml --namespace explorer"
-	KNOXAUTOPOLICY_SA="$KNOXAUTOPOLICY_REPO/serviceaccount.yaml --namespace explorer"
 
 	statusline WAIT "$1 knoxautopolicy"
-	kubectl $1 -f $KNOXAUTOPOLICY_SVC
-	kubectl $1 -f $KNOXAUTOPOLICY_CFG
 	kubectl $1 -f $KNOXAUTOPOLICY_DEP
-	kubectl $1 -f $KNOXAUTOPOLICY_SA
 	statusline AOK "$1 knoxautopolicy"
 }
 
