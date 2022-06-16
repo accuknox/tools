@@ -23,7 +23,6 @@ jobs:
         run: ./test-samples.sh
 
       - name: Archive artifacts
-        if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
