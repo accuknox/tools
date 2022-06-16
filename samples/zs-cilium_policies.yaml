@@ -1,0 +1,908 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-arwxytapocwyova
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: productcatalogservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "3550"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-cmayokmcofwverp
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-cnlkimsnevdbhiy
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: cartservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-cqyzoicarkbodkx
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: redis-cart
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "6379"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: cartservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-drqlwspoionyyuv
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: loadgenerator
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-ecpoypvjzisgyry
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: recommendationservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-fhvnhuckxsookbk
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: currencyservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7000"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-givmxcvzkzbarff
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: shippingservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-jcpiwlvasulyudi
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: adservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-leiftvqtaeufvyo
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-lmuwpxbrddlutpj
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: loadgenerator
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-mhbgmhgphphugnp
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: currencyservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7000"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-ncdaeuqqlxvzvwa
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: shippingservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-oeawfeylofjsahz
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-oijhwioywzuuetg
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "5050"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-ojqatipjtehdlfb
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-omwpfkoucjhemfb
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: cartservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7070"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-opiltlirxowolwd
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: loadgenerator
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-otguhmezwhgxkey
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: paymentservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-uhwoxfpkdgayafm
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: cartservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7070"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-uuyjaxhtntswknz
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: recommendationservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-ytibyqsdomwcunh
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: loadgenerator
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-zrvpbttrhogofne
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: productcatalogservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "3550"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: recommendationservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-zvzvdzzbgmaakbh
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: productcatalogservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "3550"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-ailkspzmhswetms
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: recommendationservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-ehlfqlgpsntybvi
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: shippingservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-fbepvudgvwywjqa
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: redis-cart
+  ingress:
+  - fromEntities:
+    - host
+    toPorts:
+    - ports:
+      - port: "6379"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-fdjajtokgqstlqx
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: currencyservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7000"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-ftdjctsmwcpwbfr
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: currencyservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7000"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-ivpmrlkdazbdfxa
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: frontend
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: loadgenerator
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-kipnisavbuqiytj
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: productcatalogservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "3550"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-kyruxgaxwqnnhup
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: frontend
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: loadgenerator
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-lwlhqgooodqdxzj
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "5050"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-ohhnskxcsdmlfvh
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: paymentservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-pcqcgweeegagohc
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: cartservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7070"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-spklrrxljdnjhgg
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: productcatalogservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: recommendationservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "3550"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-ueopfhupakrrxnx
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: cartservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "7070"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-vkkcubjzfevvmmw
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: productcatalogservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "3550"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-vnovvtqimsllkec
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: shippingservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "50051"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-xukzwboawebejjm
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: redis-cart
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: cartservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "6379"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-axhjjtupddkozff
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: adservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "9555"
+        protocol: TCP
+      - port: "7070"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-sbspxuwpxiqzbkg
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: emailservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-vedexllcmvmatdy
+  namespace: google-micro-service
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: adservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "9555"
+        protocol: TCP
+      - port: "7070"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-dxfazhshbykpmjo
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: emailservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: checkoutservice
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-gewxliynihddbpa
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: adservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "9555"
+        protocol: TCP
+      - port: "7070"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-mldhlegauxsgyvo
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: adservice
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+        k8s:io.kubernetes.pod.namespace: google-micro-service
+    toPorts:
+    - ports:
+      - port: "9555"
+        protocol: TCP
+      - port: "7070"
+        protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-ingress-fmpgqasveskmblz
+  namespace: google-micro-service
+spec:
+  endpointSelector:
+    matchLabels:
+      app: frontend
+  ingress:
+  - fromEntities:
+    - world
+    - remote-node
+    - host
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+---
