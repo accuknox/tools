@@ -1,0 +1,348 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-dleshhfrxkxufcb
+  namespace: default
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: boss-workflow
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-idzgvwnzyalzswi
+  namespace: default
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: boss-master
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-jffqqhyalsxfydx
+  namespace: default
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: boss-master
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-jnyzfssfhljkiyj
+  namespace: default
+spec:
+  egress:
+  - toCIDR:
+    - 13.232.122.193/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-master
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-kepisliryevnbln
+  namespace: default
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: boss-workflow
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-kjbwnqxzjcffqhi
+  namespace: default
+spec:
+  egress:
+  - toEntities:
+    - health
+    toPorts:
+    - ports:
+      - port: "5672"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-master
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-lygoavornyrqeew
+  namespace: default
+spec:
+  egress:
+  - toCIDR:
+    - 13.232.122.193/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-workflow
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-mhabetlffsrhwzr
+  namespace: default
+spec:
+  egress:
+  - toEntities:
+    - health
+    toPorts:
+    - ports:
+      - port: "5672"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-workflow
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-qipqgqbjkdinpiq
+  namespace: default
+spec:
+  egress:
+  - toEntities:
+    - health
+    toPorts:
+    - ports:
+      - port: "5672"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-notifications
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-xfwnhiegbuxsadk
+  namespace: default
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      app: boss-notifications
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-alfgspcmnvtccwk
+  namespace: explorer
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      container: knoxautopolicy
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-dnuouctnrumfrzl
+  namespace: explorer
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s-app: hubble-relay
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "4245"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      container: knoxautopolicy
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-kyvmjzbljemewkj
+  namespace: explorer
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+        kubearmor-app: kubearmor-relay
+    toPorts:
+    - ports:
+      - port: "32767"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      container: knoxautopolicy
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-mcwhtxqbiegmxlc
+  namespace: explorer
+spec:
+  egress:
+  - toCIDR:
+    - 172.31.3.238/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      container: knoxautopolicy
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-ndbnntkbsuyhjjk
+  namespace: explorer
+spec:
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        eks.amazonaws.com/component: coredns
+        k8s-app: kube-dns
+        k8s:io.kubernetes.pod.namespace: kube-system
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  endpointSelector:
+    matchLabels:
+      container: knoxautopolicy
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-jygouxwqwzdyrmh
+  namespace: default
+spec:
+  egress:
+  - toCIDR:
+    - 13.127.92.224/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-master
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-naydrwcwgsvzpnr
+  namespace: default
+spec:
+  egress:
+  - toCIDR:
+    - 13.127.92.224/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-workflow
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-wetnardfuthamjy
+  namespace: default
+spec:
+  egress:
+  - toCIDR:
+    - 13.126.75.177/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-workflow
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: autopol-egress-sebalreyltjrynm
+  namespace: default
+spec:
+  egress:
+  - toCIDR:
+    - 13.126.75.177/32
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+  endpointSelector:
+    matchLabels:
+      app: boss-master
+---
