@@ -129,8 +129,8 @@ getIngressRule()
 	tgtlbls=`echo "$tgtlbls" | grep -v "^k8s:" | sed -z 's/\n/\\\\n/g;s/\\\\n$//g'`
 	tgtns=`echo "$rule" | yq -e eval ".fromEndpoints[0].matchLabels.\"k8s:io.kubernetes.pod.namespace\"" - 2>/dev/null`
 	[[ $? -ne 0 ]] && tgtns="default"
-	tgtport=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].port" - 2>/dev/null`
-	tgtprot=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].protocol" - 2>/dev/null`
+	tgtport=`echo "$rule" | yq -e eval ".fromPorts[0].ports[0].port" - 2>/dev/null`
+	tgtprot=`echo "$rule" | yq -e eval ".fromPorts[0].ports[0].protocol" - 2>/dev/null`
 
 	getEdgeColor
 
@@ -217,6 +217,7 @@ filter_net_policy()
 		kind=`yq eval '.kind' $f`
 		[[ "$kind" != "CiliumNetworkPolicy" ]] && continue
 		ns=`yq eval '.metadata.namespace' $f`
+		[[ $? -ne 0 ]] && ns="default"
 		eps=`yq eval '.spec.endpointSelector.matchLabels' $f | sed -z 's/\n/\\\\n/g;s/\\\\n$//g'`
 		[[ ! $ns =~ $NS_FILTER ]] && continue
 		[[ "$XNS_FILTER" != "" ]] && [[ $ns =~ $XNS_FILTER ]] && continue
@@ -234,6 +235,7 @@ filter_net_policy()
 		echo "@startuml" > $PKGF
 		for fns in `ls -1 namespace_* 2>/dev/null`; do
 			ns=${fns/*_/}
+			[[ $ns == "null" ]] && ns="default"
 			cat << EOF >> $PKGF
 package "namespace: $ns" {
 `cat $fns`
@@ -304,6 +306,8 @@ handle_psfile_set()
 
 handle_network_set()
 {
+	net=`yq eval '.spec.network.matchProtocols' $f`
+	[[ "$net" == "null" ]] && return
 	add2yaml 0 "network:"
 	for((i=0;;i++)); do
 		fromsrc_present=0
@@ -390,4 +394,3 @@ main()
 
 parse_cmdargs "$@"
 main
-
