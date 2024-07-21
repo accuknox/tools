@@ -26,5 +26,5 @@ python3 main.py --csp aws --instances i-0314fe10fbb79efd1,i-0214ae20ecc98e5d2
 
 ### Using Azure
 ```bash
-python3 main.py --csp azure --instances sample-instance
+python3 main.py --csp azure --instances instance1,inst2 --az_res_grp "myResourceGroup"
 ```
