@@ -1,3 +1,4 @@
 bin/*
 crowdstrike-bsod-fix/windows
-*/__pycache__
+__pycache__
+.venv
