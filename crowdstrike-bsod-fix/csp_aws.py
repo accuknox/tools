@@ -10,7 +10,7 @@ import os
 import glob
 
 logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("main")
+log = logging.getLogger("aws")
 
 def detach_volumes(ec2, inst_id, dry_run=False):
     try:

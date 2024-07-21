@@ -16,6 +16,7 @@ def main() -> None:
     argp = argparse.ArgumentParser()
     argp.add_argument("--csp", required=True, help="Cloud Service Provider name [aws/gcp/azure]")
     argp.add_argument("--instances", required=True, help="Instance list separated by comma")
+    argp.add_argument("--az_res_grp", required=False, help="Azure resource group")
     argp.add_argument("--dry-run", action="store_true")
     args = argp.parse_args()
 
