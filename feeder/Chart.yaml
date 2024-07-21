@@ -1,6 +1,0 @@
-apiVersion: v2
-name: node-event
-description: A Helm chart for node-event application
-type: application
-version: 0.1.0
-appVersion: 1.16.0

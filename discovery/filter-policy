@@ -1,0 +1,393 @@
+#!/bin/bash
+
+# Examples
+# ./filter-policy -f cilium_policies.yaml -l '^app: checkoutservice' -g checkoutservice.png -o checkoutservice.yaml
+# ./filter-policy -f cilium_policies.yaml -l '^app: .*' -g full.png -o full.yaml
+
+# ./filter-policy -f kubearmor_policies_default_default_server_klshyhrs.yaml -l '^app: cartservice' -g cartservice.png
+
+TMP="/tmp"
+
+chk_cmd()
+{
+	if ! command -v $1 &>/dev/null; then
+		echo "<$1> command not found"
+		echo "$2"
+		exit
+	fi
+}
+
+prerequisites()
+{
+	chk_cmd yq "Download from https://github.com/mikefarah/yq"
+	chk_cmd csplit "Install util csplit"
+	[[ "$GRAPH" != "" ]] && chk_cmd java "java not found"
+	PUML_JAR=`ls -1 plantuml*.jar`
+	[[ "$GRAPH" != "" ]] && [[ "$PUML_JAR" == "" ]] && echo "need plantuml jar in current folder. Download from https://plantuml.com/download" && exit 1
+}
+
+usage()
+{
+	cat << EOF
+Usage: $0 <options>
+
+Options:
+-f | --file <yaml-file> ... Mandatory parameter
+-n | --namespace <namespace-filter> ... default is ".*"
+-N | --exclude-namespace <namespace-filter>
+-l | --labels <label-filter> ... default is ".*"
+-L | --exclude-labels <label-filter>
+-g | --graph <graph-png-file>
+-o | --output <output-yaml-to-redirect-filtered-policies> ... default is stdout
+-h | --help <this-help>
+EOF
+	exit 1
+}
+
+parse_cmdargs()
+{
+	OPTS=`getopt -o N:L:n:l:f:o:g:h --long exclude-namespace:,exclude-labels:,graph:,namespace:,label:,file:,output:,help -n 'parse-options' -- "$@"`
+	[[ $? -ne 0 ]] && usage
+	eval set -- "$OPTS"
+	NS_FILTER=".*"
+	LB_FILTER=".*"
+	while true; do
+		case "$1" in
+			-n | --namespace ) NS_FILTER="$2"; shift 2;;
+			-N | --exclude-namespace ) XNS_FILTER="$2"; shift 2;;
+			-l | --label ) LB_FILTER="$2"; shift 2;;
+			-L | --exclude-labels ) XLB_FILTER="$2"; shift 2;;
+			-f | --file ) YAML="$2"; shift 2;;
+			-g | --graph ) GRAPH="$2"; shift 2;;
+			-o | --output ) OUT="$2"; [[ -f $OUT ]] && rm -f $OUT; shift 2;;
+			-h | --help ) usage; shift 1;;
+			-- ) shift; break ;;
+			* ) break ;;
+		esac
+	done
+	[[ "$YAML" == "" ]] && echo "Need yaml file as input" && usage
+	echo "Input YAML=$YAML"
+	echo "Namespace Filter=$NS_FILTER"
+	[[ "$XNS_FILTER" != "" ]] && echo "Exclude Namespace Filter=$XNS_FILTER"
+	echo "Label Filter=$LB_FILTER"
+	[[ "$XLB_FILTER" != "" ]] && echo "Exclude Label Filter=$XLB_FILTER"
+}
+
+split_files()
+{
+	wdir="$TMP/$USER/tmp"
+	mkdir -p $wdir
+#	DOT="$wdir/graph.dot"
+	rm -f $wdir/*
+	csplit -s -z --prefix="$wdir/policy-" --suffix-format="%02d.yaml" $YAML '/---/' '{*}'
+	[[ $? -ne 0 ]] && echo "unable to split policy files" && exit 2
+}
+
+getEdgeColor()
+{
+	edgecolor="grey"
+	[[ "$tgtprot" == "UDP" ]] && edgecolor="green"
+	[[ "$tgtprot" == "TCP" ]] && edgecolor="blue"
+}
+
+declare -A rules
+
+check_add_http_rule()
+{
+	if [ "$tgtprot" != "TCP" ]; then
+		return
+	fi
+	httprules=""
+	for ((i=0;;i++)); do
+		method=`echo "$rule" | yq -e eval ".toPorts[0].rules.http[$i].method" - 2>/dev/null`
+		apiurl=`echo "$rule" | yq -e eval ".toPorts[0].rules.http[$i].path" - 2>/dev/null`
+		[[ "$method" == "null" ]] && break
+		#echo "$i) METHOD=$method, APIURL=$apiurl"
+		if [ "$httprules" == "" ]; then
+			httprules="$method $apiurl"
+		else
+			httprules="$httprules\n$method $apiurl"
+		fi
+	done
+	[[ "$httprules" != "" ]] && echo "[$1] -[#black]-> [$2] : $httprules" >> $PUML
+}
+
+dot_add_edge()
+{
+	edge="$1"
+	[[ "${rules[$edge]}" == "1" ]] && return 1
+	rules["$edge"]="1"
+#	echo "$edge color=\"$2\"];" >> $DOT
+	return 0
+}
+
+getIngressRule()
+{
+	rule=`yq -e eval ".spec.ingress[$1]" $f 2>/dev/null`
+	tgtlbls=`echo "$rule" | yq -e eval ".fromEndpoints[0].matchLabels" - 2>/dev/null`
+	[[ $? -ne 0 ]] && return 1
+	tgtlbls=`echo "$tgtlbls" | grep -v "^k8s:" | sed -z 's/\n/\\\\n/g;s/\\\\n$//g'`
+	tgtns=`echo "$rule" | yq -e eval ".fromEndpoints[0].matchLabels.\"k8s:io.kubernetes.pod.namespace\"" - 2>/dev/null`
+	[[ $? -ne 0 ]] && tgtns="default"
+	tgtport=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].port" - 2>/dev/null`
+	tgtprot=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].protocol" - 2>/dev/null`
+
+	getEdgeColor
+
+	str="\"$tgtns\n$tgtlbls\" -> \"$eps_ns\" [label = \"$tgtprot/$tgtport\""
+	dot_add_edge "$str" $edgecolor
+	[[ $? -ne 0 ]] && return
+
+	add_label_ns "$tgtns" "$tgtlbls"
+	echo "[$tgtlbls] -[#$edgecolor]-> [$eps] : $tgtprot/$tgtport" >> $PUML
+	check_add_http_rule "$tgtlbls" "$eps"
+}
+
+getEgressRule()
+{
+	rule=`yq -e eval ".spec.egress[$1]" $f 2>/dev/null`
+	[[ $? -ne 0 ]] && return 1
+	tgtlbls=`echo "$rule" | yq -e eval ".toEndpoints[0].matchLabels" - 2>/dev/null`
+	[[ $? -ne 0 ]] && return 1
+	tgtlbls=`echo "$tgtlbls" | grep -v "^k8s:" | sed -z 's/\n/\\\\n/g;s/\\\\n$//g'`
+	tgtns=`echo "$rule" | yq -e eval ".toEndpoints[0].matchLabels.\"k8s:io.kubernetes.pod.namespace\"" - 2>/dev/null`
+	[[ $? -ne 0 ]] && tgtns="default"
+	tgtport=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].port" - 2>/dev/null`
+	tgtprot=`echo "$rule" | yq -e eval ".toPorts[0].ports[0].protocol" - 2>/dev/null`
+
+	getEdgeColor
+
+	str="\"$eps_ns\" -> \"$tgtns\n$tgtlbls\" [label = \"$tgtprot/$tgtport\""
+	dot_add_edge "$str" $edgecolor
+	[[ $? -ne 0 ]] && return
+
+	add_label_ns "$tgtns" "$tgtlbls"
+	echo "[$eps] -[#$edgecolor]-> [$tgtlbls] : $tgtprot/$tgtport" >> $PUML
+	check_add_http_rule "$eps" "$tgtlbls"
+}
+
+handle_net_policy()
+{
+	[[ "$OUT" != "" ]] && cat $f >> $OUT
+	for((i=0;;i++)); do
+		unset tgtlbls tgtport
+		getEgressRule $i
+		[[ $? -ne 0 ]] && break
+	done
+	for((i=0;;i++)); do
+		unset tgtlbls tgtport
+		getIngressRule $i
+		[[ $? -ne 0 ]] && break
+	done
+}
+
+convert_puml()
+{
+#	cat $PUML
+	java -jar $PUML_JAR $PUML -output "$PWD"
+	[[ "$GRAPH" != "" ]] && mv ${PUML/.puml/.png} $GRAPH
+}
+
+add_label_ns()
+{
+	fname="namespace_$1"
+	if [ -f $fname ]; then
+		grep "\[$2\]" $fname 2>&1 >/dev/null
+		if [ $? -eq 0 ]; then
+			grep "\[$2\].*$3" $fname 2>&1 >/dev/null
+			[[ $? -eq 0 ]] && return
+			sed -i "s/\[$2\]/[$2] $3/g" $fname
+		fi
+	fi
+	echo "[$2] $3" >> $fname
+}
+
+filter_net_policy()
+{
+	flist=`find $wdir -type f -name "policy-*.yaml"`
+	totalCnt=`echo "$flist" | wc -l`
+	matchCnt=0
+	c=0
+	PUML="net-policy.puml"
+	rm -f namespace_*
+	rm -f $PUML
+	for f in $flist; do
+		echo -en "processed $c/$totalCnt ... matches $matchCnt       \r"
+		((c++))
+		kind=`yq eval '.kind' $f`
+		[[ "$kind" != "CiliumNetworkPolicy" ]] && continue
+		ns=`yq eval '.metadata.namespace' $f`
+		eps=`yq eval '.spec.endpointSelector.matchLabels' $f | sed -z 's/\n/\\\\n/g;s/\\\\n$//g'`
+		[[ ! $ns =~ $NS_FILTER ]] && continue
+		[[ "$XNS_FILTER" != "" ]] && [[ $ns =~ $XNS_FILTER ]] && continue
+		[[ ! $eps =~ $LB_FILTER ]] && continue
+		[[ "$XLB_FILTER" != "" ]] && [[ $eps =~ $XLB_FILTER ]] && continue
+		eps_ns="$ns\n$eps"
+		add_label_ns "$ns" "$eps" "#Lightblue"
+		((matchCnt++))
+		handle_net_policy $f
+	done
+	echo "processed $c/$totalCnt ... matches $matchCnt       "
+	if [ "$GRAPH" != "" ]; then
+		echo "@enduml" >> $PUML
+		PKGF="package-namespace.puml"
+		echo "@startuml" > $PKGF
+		for fns in `ls -1 namespace_* 2>/dev/null`; do
+			ns=${fns/*_/}
+			cat << EOF >> $PKGF
+package "namespace: $ns" {
+`cat $fns`
+}
+EOF
+		done
+		cat $PKGF
+		cat $PKGF $PUML > $PUML.tmp
+		mv $PUML.tmp $PUML
+		convert_puml
+		rm -f $PKGF $PUML
+	fi
+	rm -f namespace_*
+}
+
+# $1 -> indentation point
+# $2 -> multiline input
+add2yaml()
+{
+	while read -r line; do
+		[[ "$line" == "" ]] && continue
+		for((xx=0;xx<$1;xx++)); do
+			echo -en "  " >> $PUML
+		done
+		echo -en "$line\n" >> $PUML
+	done < <(printf '%s\n' "$2")
+}
+
+handle_pathdir()
+{
+	pathdir="path"
+	[[ "$2" == "matchDirectories" ]] && pathdir="dir"
+	echo "processing $1 $2 ..."
+	for((i=0;;i++)); do
+		fromsrc_present=0
+		path=`yq -e eval ".spec.$1.$2[$i].$pathdir" $f 2>/dev/null`
+		[[ $? -ne 0 ]] && break
+		echo "$i. [$path]"
+		for((j=0;;j++)); do
+			fromsrc=`yq -e eval ".spec.$1.$2[$i].fromSource[$j].path" $f 2>/dev/null`
+			[[ $? -ne 0 ]] && break
+			if [ "$fromsrc" != "" ]; then 
+				echo "${psset[$fromsrc]}" | grep "\- $path," >/dev/null
+				if [ $? -ne 0 ]; then
+					psset["$fromsrc"]="- $path,${psset[$fromsrc]}"
+					fromsrc_present=1
+				fi
+			fi
+		done
+		if [ $fromsrc_present -eq 0 ]; then
+			add2yaml 1 "$path:o"
+		fi
+	done
+}
+
+handle_psfile_set()
+{
+	unset psset
+	declare -A psset
+	add2yaml 0 "$1:"
+	handle_pathdir $1 matchPaths
+	handle_pathdir $1 matchDirectories
+	for fromsrc in "${!psset[@]}"; do
+		add2yaml 1 "$fromsrc:"
+		add2yaml 2 "`echo ${psset[$fromsrc]} | tr , '\n'`"
+	done
+}
+
+handle_network_set()
+{
+	add2yaml 0 "network:"
+	for((i=0;;i++)); do
+		fromsrc_present=0
+		prot=`yq -e eval ".spec.network.matchProtocols[$i].protocol" $f 2>/dev/null`
+		[[ $? -ne 0 ]] && break
+		add2yaml 1 "$prot:"
+		for((j=0;;j++)); do
+			fromsrc=`yq -e eval ".spec.network.matchProtocols[$i].fromSource[$j].path" $f 2>/dev/null`
+			[[ $? -ne 0 ]] && break
+			if [ "$fromsrc" != "" ]; then 
+				add2yaml 2 "- $fromsrc"
+				fromsrc_present=1
+			fi
+		done
+		if [ $fromsrc_present -eq 0 ]; then
+			add2yaml 1 "$prot:o"
+		fi
+	done
+}
+
+handle_sys_policy()
+{
+	PUML="sys-policy.puml"
+
+	# policy name
+	name=`yq -e eval '.metadata.name' $f`
+	[[ $? -ne 0 ]] && echo ".metadata.name not found" && return
+	echo -en "@startyaml\nname: $name\n" > $PUML
+
+	# namespace
+	ns=`yq -e eval '.metadata.namespace' $f`
+	[[ $? -ne 0 ]] && ns="default"
+	echo "namespace: $ns" >> $PUML
+
+	# labels
+	lbls=`yq -e eval '.spec.selector.matchLabels' $f`
+	[[ $? -ne 0 ]] && echo "..spec.selector.matchLabels not found" && return
+	echo "labels:" >> $PUML
+	add2yaml 1 "$lbls"
+
+	# process
+	handle_psfile_set "process"
+
+	# file
+	handle_psfile_set "file"
+
+	# network
+	handle_network_set
+
+	echo "@endyaml" >> $PUML
+
+	convert_puml
+}
+
+filter_sys_policy()
+{
+	flist=`find $wdir -type f -name "policy-*.yaml"`
+	totalCnt=`echo "$flist" | wc -l`
+	matchCnt=0
+	c=0
+	for f in $flist; do
+#		echo -en "processed $c/$totalCnt ... matches $matchCnt       \r"
+		((c++))
+		kind=`yq eval '.kind' $f`
+		[[ "$kind" != "KubeArmorPolicy" ]] && continue
+		ns=`yq eval '.metadata.namespace' $f`
+		eps=`yq eval '.spec.selector.matchLabels' $f`
+		[[ ! $ns =~ $NS_FILTER ]] && continue
+		[[ ! $eps =~ $LB_FILTER ]] && continue
+		eps_ns="$ns\n$eps"
+		((matchCnt++))
+		handle_sys_policy $f
+	done
+#	echo "processed $c/$totalCnt ... matches $matchCnt       "
+}
+
+main()
+{
+	prerequisites
+	split_files
+	filter_net_policy
+	filter_sys_policy
+}
+
+parse_cmdargs "$@"
+main
+

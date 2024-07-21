@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: feeder-secret
-type: Opaque
-data:
-  secret_key: ZmVlZGVyLXNlcnZjaWU=
