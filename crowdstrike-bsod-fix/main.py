@@ -6,7 +6,6 @@
 
 import argparse
 import logging
-import aws
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("main")
@@ -25,7 +24,7 @@ def main() -> None:
         exit(1)
     log.info(f"using cloud service provider {args.csp}")
     log.info(f"Instances {args.instances}")
-    module = __import__(args.csp)
+    module = __import__(f"csp_{args.csp}")
     func = getattr(module, f"handle_{args.csp}")
     func(args) # calls handle_aws, handle_gcp, handle_azure
 
