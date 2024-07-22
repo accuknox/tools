@@ -35,7 +35,7 @@ def detach_volumes(ec2, inst_id, dry_run=False):
         yield vid, res["Device"]
 
 # Function to attach volume to the current instance
-def attach_volume(ec2, inst_id, vid, dev, dry_run=False):
+def attach_vol(ec2, inst_id, vid, dev, dry_run=False):
     try:
         ec2.attach_volume(
             InstanceId=inst_id, VolumeId=vid, Device=dev, DryRun=dry_run
@@ -48,7 +48,7 @@ def attach_volume(ec2, inst_id, vid, dev, dry_run=False):
 
 
 # Function to detach volume from the current instance
-def detach_volume(ec2, vid, dry_run=False):
+def detach_vol(ec2, vid, dry_run=False):
     try:
         ec2.detach_volume(VolumeId=vid, DryRun=dry_run)
         waiter = ec2.get_waiter("volume_available")
@@ -58,7 +58,7 @@ def detach_volume(ec2, vid, dry_run=False):
             log.error(f"Failed to detach volume {vid}: {e}")
 
 # Function to get the device name
-def get_device_name():
+def get_dev_name():
     res = subprocess.run(["fdisk -l"], capture_output=True, shell=True).stdout.decode()
     for line in res.splitlines():
         if "NTFS" in line:
@@ -67,7 +67,7 @@ def get_device_name():
     return ""
 
 # Function to remove the file
-def remove_crowdstrike_file(mount_point):
+def remove_cs_file(mount_point):
     file_pattern = f"{mount_point}/Windows/System32/drivers/CrowdStrike/C-00000291*.sys"
     for file in glob.glob(file_pattern):
         os.remove(file)
@@ -95,9 +95,9 @@ def stop_instance(ec2, inst_id, dry_run=False):
 def handle_aws(args):
     log.info(f"called {args.csp}")
     instances=args.instances.split(",")
-    mount_point = os.getcwd() + "/windows"
-    os.makedirs(mount_point, exist_ok=True)
-    log.info(f"mount directory {mount_point}")
+    mntpt = os.getcwd() + "/windows"
+    os.makedirs(mntpt, exist_ok=True)
+    log.info(f"mount directory {mntpt}")
     ec2 = boto3.client('ec2')
     # response = ec2.describe_instances()
     # print(response)
@@ -113,27 +113,27 @@ def handle_aws(args):
 
         for vid, dev in detach_volumes(ec2=ec2, inst_id=inst_id, dry_run=args.dry_run):
             try:
-                attach_volume(ec2=ec2, inst_id=inst_id, vid=vid, dev="/dev/sdz", dry_run=args.dry_run)
+                attach_vol(ec2=ec2, inst_id=inst_id, vid=vid, dev="/dev/sdz", dry_run=args.dry_run)
             except Exception as err:
                 if "DryRunOperation" not in str(err):
                     log.error(f"attach vol failed {vid}: {err}")
                     continue
 
+            devname=""
             try:
-                devname=""
                 for retry in range(20):
-                    devname=get_device_name()
+                    devname=get_dev_name()
                     if devname:
                         break
                     time.sleep(1)
                 if not args.dry_run:
                     subprocess.run(
-                        ["mount", devname, mount_point], capture_output=True
+                        ["mount", devname, mntpt], capture_output=True
                     )
-                    remove_crowdstrike_file(mount_point)
-                    subprocess.run(["umount", mount_point], capture_output=True)
+                    remove_cs_file(mntpt)
+                    subprocess.run(["umount", mntpt], capture_output=True)
             finally:
-                detach_volume(ec2, vid, dry_run=args.dry_run)
-                attach_volume(ec2, inst_id, vid, dev, dry_run=args.dry_run)
+                detach_vol(ec2, vid, dry_run=args.dry_run)
+                attach_vol(ec2, inst_id, vid, dev, dry_run=args.dry_run)
 
         start_instance(ec2, inst_id, dry_run=args.dry_run)
