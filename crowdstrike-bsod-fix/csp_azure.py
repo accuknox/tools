@@ -61,11 +61,9 @@ def get_dev_name():
 
 def check_disk(client, args, inst_id, line):
     try:
-        resp = detach_vol(client, args, inst_id, line)
-        print(resp)
+        detach_vol(client, args, inst_id, line)
         commonutil.mount_rem_cs_file(args)
-        resp = attach_vol(client, args, inst_id, line)
-        print(resp)
+        attach_vol(client, args, inst_id, line)
     except Exception as e:
         log.error(f"failed to detach/attach disk {inst_id}: {e}")
     return
