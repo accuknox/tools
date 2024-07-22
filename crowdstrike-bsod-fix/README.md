@@ -1,4 +1,6 @@
-# CrowdStrike BSoD Rememdiation
+# CrowdStrike BSoD Remediation
+
+The aim of this tool is to remove the problematic CrowdStrike sys file that causes the BSoD on startup.
 
 ```
 # expected pip version 24.1.2
