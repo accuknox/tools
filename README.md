@@ -11,3 +11,6 @@
 ## Handling Cilium policy Audit
 [ref](cilium-audit)
 
+## CrowdStrike BSoD Remediation
+[ref](crowdstrike-bsod-fix)
+
