@@ -4,3 +4,4 @@
 
 def handle_gcp(args):
     print(f"called {args.csp}")
+    print("GCP IS NOT IMPLEMENTED CURRENTLY. For help, connect to XCitium/AccuKnox support.")
