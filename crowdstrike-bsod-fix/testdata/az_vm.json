@@ -1,0 +1,180 @@
+[
+  {
+    "additionalCapabilities": {
+      "hibernationEnabled": false,
+      "ultraSsdEnabled": null
+    },
+    "applicationProfile": null,
+    "availabilitySet": null,
+    "billingProfile": null,
+    "capacityReservation": null,
+    "diagnosticsProfile": {
+      "bootDiagnostics": {
+        "enabled": true,
+        "storageUri": null
+      }
+    },
+    "etag": "\"4\"",
+    "evictionPolicy": null,
+    "extendedLocation": null,
+    "extensionsTimeBudget": null,
+    "hardwareProfile": {
+      "vmSize": "Standard_B1s",
+      "vmSizeProperties": null
+    },
+    "host": null,
+    "hostGroup": null,
+    "id": "/subscriptions/9af872e2-64b3-4577-8693-7edf106007b4/resourceGroups/RAHULWINMACHINE-DELETEBY24JULY_GROUP/providers/Microsoft.Compute/virtualMachines/rahulwinmachine-deleteby24July",
+    "identity": null,
+    "instanceView": null,
+    "licenseType": null,
+    "location": "westus2",
+    "managedBy": null,
+    "name": "rahulwinmachine-deleteby24July",
+    "networkProfile": {
+      "networkApiVersion": null,
+      "networkInterfaceConfigurations": null,
+      "networkInterfaces": [
+        {
+          "deleteOption": "Delete",
+          "id": "/subscriptions/9af872e2-64b3-4577-8693-7edf106007b4/resourceGroups/rahulwinmachine-deleteby24July_group/providers/Microsoft.Network/networkInterfaces/rahulwinmachine-deleteby24july647_z1",
+          "primary": null,
+          "resourceGroup": "rahulwinmachine-deleteby24July_group"
+        }
+      ]
+    },
+    "osProfile": {
+      "adminPassword": null,
+      "adminUsername": "rahul",
+      "allowExtensionOperations": true,
+      "computerName": "rahulwinmachine",
+      "customData": null,
+      "linuxConfiguration": null,
+      "requireGuestProvisionSignal": true,
+      "secrets": [],
+      "windowsConfiguration": {
+        "additionalUnattendContent": null,
+        "enableAutomaticUpdates": true,
+        "enableVmAgentPlatformUpdates": null,
+        "patchSettings": {
+          "assessmentMode": "ImageDefault",
+          "automaticByPlatformSettings": null,
+          "enableHotpatching": false,
+          "patchMode": "AutomaticByOS"
+        },
+        "provisionVmAgent": true,
+        "timeZone": null,
+        "winRm": null
+      }
+    },
+    "plan": null,
+    "platformFaultDomain": null,
+    "priority": null,
+    "provisioningState": "Succeeded",
+    "proximityPlacementGroup": null,
+    "resourceGroup": "RAHULWINMACHINE-DELETEBY24JULY_GROUP",
+    "resources": null,
+    "scheduledEventsPolicy": null,
+    "scheduledEventsProfile": null,
+    "securityProfile": {
+      "encryptionAtHost": null,
+      "encryptionIdentity": null,
+      "proxyAgentSettings": null,
+      "securityType": "TrustedLaunch",
+      "uefiSettings": {
+        "secureBootEnabled": true,
+        "vTpmEnabled": true
+      }
+    },
+    "storageProfile": {
+      "dataDisks": [
+        {
+          "caching": "None",
+          "createOption": "Attach",
+          "deleteOption": "Detach",
+          "detachOption": null,
+          "diskIopsReadWrite": null,
+          "diskMBpsReadWrite": null,
+          "diskSizeGb": 32,
+          "image": null,
+          "lun": 0,
+          "managedDisk": {
+            "diskEncryptionSet": null,
+            "id": "/subscriptions/9af872e2-64b3-4577-8693-7edf106007b4/resourceGroups/rahulwinmachine-deleteby24July_group/providers/Microsoft.Compute/disks/rj-testdisk",
+            "resourceGroup": "rahulwinmachine-deleteby24July_group",
+            "securityProfile": null,
+            "storageAccountType": "Standard_LRS"
+          },
+          "name": "rj-testdisk",
+          "sourceResource": null,
+          "toBeDetached": false,
+          "vhd": null,
+          "writeAcceleratorEnabled": false
+        },
+        {
+          "caching": "None",
+          "createOption": "Attach",
+          "deleteOption": "Detach",
+          "detachOption": null,
+          "diskIopsReadWrite": null,
+          "diskMBpsReadWrite": null,
+          "diskSizeGb": 32,
+          "image": null,
+          "lun": 1,
+          "managedDisk": {
+            "diskEncryptionSet": null,
+            "id": "/subscriptions/9af872e2-64b3-4577-8693-7edf106007b4/resourceGroups/rahulwinmachine-deleteby24July_group/providers/Microsoft.Compute/disks/rj-disk2",
+            "resourceGroup": "rahulwinmachine-deleteby24July_group",
+            "securityProfile": null,
+            "storageAccountType": "Standard_LRS"
+          },
+          "name": "rj-disk2",
+          "sourceResource": null,
+          "toBeDetached": false,
+          "vhd": null,
+          "writeAcceleratorEnabled": false
+        }
+      ],
+      "diskControllerType": "SCSI",
+      "imageReference": {
+        "communityGalleryImageId": null,
+        "exactVersion": "20348.2582.240703",
+        "id": null,
+        "offer": "WindowsServer",
+        "publisher": "MicrosoftWindowsServer",
+        "sharedGalleryImageId": null,
+        "sku": "2022-datacenter-azure-edition",
+        "version": "latest"
+      },
+      "osDisk": {
+        "caching": "ReadWrite",
+        "createOption": "FromImage",
+        "deleteOption": "Delete",
+        "diffDiskSettings": null,
+        "diskSizeGb": 127,
+        "encryptionSettings": null,
+        "image": null,
+        "managedDisk": {
+          "diskEncryptionSet": null,
+          "id": "/subscriptions/9af872e2-64b3-4577-8693-7edf106007b4/resourceGroups/rahulwinmachine-deleteby24July_group/providers/Microsoft.Compute/disks/rahulwinmachine-deleteby24July_disk1_1b82042a4eed45adbb41b61d9d942656",
+          "resourceGroup": "rahulwinmachine-deleteby24July_group",
+          "securityProfile": null,
+          "storageAccountType": "Premium_LRS"
+        },
+        "name": "rahulwinmachine-deleteby24July_disk1_1b82042a4eed45adbb41b61d9d942656",
+        "osType": "Windows",
+        "vhd": null,
+        "writeAcceleratorEnabled": null
+      }
+    },
+    "tags": null,
+    "timeCreated": "2024-07-22T09:14:43.618759+00:00",
+    "type": "Microsoft.Compute/virtualMachines",
+    "userData": null,
+    "virtualMachineScaleSet": null,
+    "vmId": "f176a1d2-cae9-4f07-8f7c-bb4bc29a9d38",
+    "zones": [
+      "1"
+    ]
+  }
+]

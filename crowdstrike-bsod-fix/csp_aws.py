@@ -3,11 +3,8 @@
 # Copyright 2024 XCitium
 
 import logging
-import time
 import boto3
-import subprocess
-import os
-import glob
+import commonutil
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("aws")
@@ -57,21 +54,6 @@ def detach_vol(ec2, vid, dry_run=False):
         if "DryRunOperation" not in str(e):
             log.error(f"Failed to detach volume {vid}: {e}")
 
-# Function to get the device name
-def get_dev_name():
-    res = subprocess.run(["fdisk -l"], capture_output=True, shell=True).stdout.decode()
-    for line in res.splitlines():
-        if "NTFS" in line:
-            device_name = line.split(" ")[0]
-            return device_name
-    return ""
-
-# Function to remove the file
-def remove_cs_file(mount_point):
-    file_pattern = f"{mount_point}/Windows/System32/drivers/CrowdStrike/C-00000291*.sys"
-    for file in glob.glob(file_pattern):
-        os.remove(file)
-
 # Function to start an instance
 def start_instance(ec2, inst_id, dry_run=False):
     try:
@@ -95,9 +77,6 @@ def stop_instance(ec2, inst_id, dry_run=False):
 def handle_aws(args):
     log.info(f"called {args.csp}")
     instances=args.instances.split(",")
-    mntpt = os.getcwd() + "/windows"
-    os.makedirs(mntpt, exist_ok=True)
-    log.info(f"mount directory {mntpt}")
     ec2 = boto3.client('ec2')
     # response = ec2.describe_instances()
     # print(response)
@@ -119,19 +98,8 @@ def handle_aws(args):
                     log.error(f"attach vol failed {vid}: {err}")
                     continue
 
-            devname=""
             try:
-                for retry in range(20):
-                    devname=get_dev_name()
-                    if devname:
-                        break
-                    time.sleep(1)
-                if not args.dry_run:
-                    subprocess.run(
-                        ["mount", devname, mntpt], capture_output=True
-                    )
-                    remove_cs_file(mntpt)
-                    subprocess.run(["umount", mntpt], capture_output=True)
+                commonutil.mount_rem_cs_file(args)
             finally:
                 detach_vol(ec2, vid, dry_run=args.dry_run)
                 attach_vol(ec2, inst_id, vid, dev, dry_run=args.dry_run)

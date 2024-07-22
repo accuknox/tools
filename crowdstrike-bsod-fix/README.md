@@ -23,8 +23,12 @@ python3 main.py --csp aws --instances i-0314fe10fbb79efd1,i-0214ae20ecc98e5d2
 ### Prerequisites
 1. Download and install [az cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux)
 1. Configure `az login` such that it points to the right account/subscription
+1. Install jq
 
 ### Using Azure
 ```bash
-python3 main.py --csp azure --instances instance1,inst2 --az_res_grp "myResourceGroup"
+python3 main.py --csp azure \
+        --instances instance_name1,inst2 \
+        --resource-group myResourceGroup \ 
+        --subscription-id 9af872e2-xxxx-yyyy-zzzz-7edf106007b4
 ```
