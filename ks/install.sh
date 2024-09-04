@@ -5,6 +5,25 @@ BASE_DIR=.ks
 KSCACHE=.kscache
 KUBESCAPE_EXEC=kubescape
 
+command -v curl >/dev/null 2>&1 ||
+	{
+		echo "curl tool not found"
+		exit 1
+	}
+
+command -v jq >/dev/null 2>&1 ||
+	{
+		echo "jq tool not found"
+		exit 1
+	}
+
+[[ "$URL" == "" ]] && echo "URL env var not found" && exit 1
+[[ "$TENANT_ID" == "" ]] && echo "TENANT_ID env var not found" && exit 1
+[[ "$LABEL_NAME" == "" ]] && echo "LABEL_NAME env var not found" && exit 1
+[[ "$AUTH_TOKEN" == "" ]] && echo "AUTH_TOKEN env var not found" && exit 1
+[[ "$CLUSTER_NAME" == "" ]] && echo "CLUSTER_NAME env var not found" && exit 1
+[[ "$CLUSTER_ID" == "" ]] && echo "CLUSTER_ID env var not found" && exit 1
+
 mkdir -p $KSCACHE
 
 # Function to determine OS and architecture
@@ -102,4 +121,34 @@ fi
 echo -e "\033[0;37;40m"
 echo -e "\033[0;37;32mExecuting Kubescape."
 [[ "$CLUSTER_NAME" == "" ]] && echo "CLUSTER_NAME environment name is not provided" && exit 1
-$BASE_DIR/bin/$KUBESCAPE_EXEC scan framework "allcontrols,clusterscan,mitre,nsa" --format json --cache-dir $KSCACHE --output report.json --cluster-name=${CLUSTER_NAME}
+$KUBESCAPE_EXEC scan framework "allcontrols,clusterscan,mitre,nsa" --format json --cache-dir $KSCACHE --output report.json --cluster-name=${CLUSTER_NAME}
+
+# get all controls
+jq -s 'map(.controls[]) | unique_by(.controlID) | .[]' $KSCACHE/allcontrols.json \
+  $KSCACHE/clusterscan.json \
+  $KSCACHE/mitre.json $KSCACHE/nsa.json > $KSCACHE/controllist.json
+
+export GENERATION_TIME=`date --utc -Isecond`
+
+# augment result
+jq ". +=
+  {
+	"generationTime": "'$ENV.GENERATION_TIME'",
+	"summary": {
+	  "controls": "'$controllist'"
+	},
+	"accuknox_metadata": {
+	  "cluster_name": "$CLUSTER_NAME",
+	  "cluster_id": "$CLUSTER_ID",
+	  "label_name": "$LABEL_NAME"
+	}
+  }" $KSCACHE/report.json --slurpfile controllist $KSCACHE/controllist.json > $KSCACHE/report_tmp.json
+
+mv $KSCACHE/report_tmp.json $KSCACHE/report.json
+
+# push
+curl --location --request POST \
+	--header "Authorization: Bearer ${AUTH_TOKEN}" \
+	--header "Tenant-Id: ${TENANT_ID}" \
+	--form "file=@\"${KSCACHE}/report.json\"" \
+	"https://${URL}/api/v1/artifact/?tenant_id=${TENANT_ID}&data_type=KS&save_to_s3=false&label_id=${LABEL_NAME}"
