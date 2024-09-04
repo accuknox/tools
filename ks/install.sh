@@ -102,4 +102,4 @@ fi
 echo -e "\033[0;37;40m"
 echo -e "\033[0;37;32mExecuting Kubescape."
 [[ "$CLUSTER_NAME" == "" ]] && echo "CLUSTER_NAME environment name is not provided" && exit 1
-$KUBESCAPE_EXEC scan framework "allcontrols,clusterscan,mitre,nsa" --format json --cache-dir $KSCACHE --output report.json --cluster-name=${CLUSTER_NAME}
+$BASE_DIR/bin/$KUBESCAPE_EXEC scan framework "allcontrols,clusterscan,mitre,nsa" --format json --cache-dir $KSCACHE --output report.json --cluster-name=${CLUSTER_NAME}
