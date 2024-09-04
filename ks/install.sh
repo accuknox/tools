@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+KSVER=v3.0.8
 BASE_DIR=.ks
 KSCACHE=.kscache
 KUBESCAPE_EXEC=kubescape
@@ -62,7 +63,11 @@ while getopts v: option; do
     esac
 done
 
-[ -z "${RELEASE}" ] && RELEASE="latest/download"
+if [ "$KSVER" != "" ]; then
+	[ -z "${RELEASE}" ] && RELEASE="download/$KSVER"
+else
+	[ -z "${RELEASE}" ] && RELEASE="latest/download"
+fi
 
 echo -e "\033[0;36mInstalling Kubescape..."
 
@@ -121,7 +126,7 @@ fi
 echo -e "\033[0;37;40m"
 echo -e "\033[0;37;32mExecuting Kubescape."
 [[ "$CLUSTER_NAME" == "" ]] && echo "CLUSTER_NAME environment name is not provided" && exit 1
-$KUBESCAPE_EXEC scan framework "allcontrols,clusterscan,mitre,nsa" --format json --cache-dir $KSCACHE --output report.json --cluster-name=${CLUSTER_NAME}
+$KUBESCAPE_EXEC scan framework "allcontrols,clusterscan,mitre,nsa" --format json --cache-dir $KSCACHE --output $KSCACHE/report.json --cluster-name=${CLUSTER_NAME}
 
 # get all controls
 jq -s 'map(.controls[]) | unique_by(.controlID) | .[]' $KSCACHE/allcontrols.json \
@@ -138,9 +143,9 @@ jq ". +=
 	  "controls": "'$controllist'"
 	},
 	"accuknox_metadata": {
-	  "cluster_name": "$CLUSTER_NAME",
-	  "cluster_id": "$CLUSTER_ID",
-	  "label_name": "$LABEL_NAME"
+	  "cluster_name": "'$ENV.CLUSTER_NAME'",
+	  "cluster_id": "'$ENV.CLUSTER_ID'",
+	  "label_name": "'$ENV.LABEL_NAME'"
 	}
   }" $KSCACHE/report.json --slurpfile controllist $KSCACHE/controllist.json > $KSCACHE/report_tmp.json
 
@@ -151,4 +156,4 @@ curl --location --request POST \
 	--header "Authorization: Bearer ${AUTH_TOKEN}" \
 	--header "Tenant-Id: ${TENANT_ID}" \
 	--form "file=@\"${KSCACHE}/report.json\"" \
-	"https://${URL}/api/v1/artifact/?tenant_id=${TENANT_ID}&data_type=KS&save_to_s3=false&label_id=${LABEL_NAME}"
+	"https://${URL}/api/v1/artifact/?tenant_id=${TENANT_ID}&data_type=KS&save_to_s3=true&label_id=${LABEL_NAME}"
