@@ -3,12 +3,12 @@
 CWPP_URL=https://cwpp.demo.accuknox.com
 TENANT_ID=3730
 TOKEN=" ------ Use AccuKnox Control Plane (Setting -> User-Management -> User (burger menu) -> Get-Access-Key) to create the token and paste it here ------"
+clusterspec=".*" # regex for cluster name for whom to dump the policies
 
 # Other params
 CURLOPTS="-s"
 TMP=/tmp/$$
 OUT="POLDUMP" # output directory where the policies will be dumped
-clusterspec="gke.*" # regex for cluster name for whom to dump the policies
 
 dump_policy_file()
 {
