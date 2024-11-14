@@ -1,13 +1,11 @@
 #!/bin/bash
 
-CWPP_URL=https://cwpp.demo.accuknox.com
-TENANT_ID=3730
-TOKEN=" ------ Use AccuKnox Control Plane (Setting -> User-Management -> User (burger menu) -> Get-Access-Key) to create the token and paste it here ------"
-clusterspec=".*" # regex for cluster name for whom to dump the policies
+# To set .accuknox.cfg check https://github.com/accuknox/tools/tree/main/api-samples
+. ${ACCUKNOX_CFG:-~/.accuknox.cfg}
 
 # Other params
-CURLOPTS="-s"
-TMP=/tmp/$$
+clusterspec=".*" # regex for cluster name for whom to dump the policies
+TMP=/tmp/$(basename $0).$$
 OUT="POLDUMP" # output directory where the policies will be dumped
 
 dump_policy_file()
