@@ -2,18 +2,17 @@
 
 # To set .accuknox.cfg check https://github.com/accuknox/tools/tree/main/api-samples
 . ${ACCUKNOX_CFG:-~/.accuknox.cfg}
+. util.sh
 
 # Other params
-TMP=/tmp/$(basename $0).$$
+TMP=$DIR/$(basename $0)
 clusterspec=".*" # regex for cluster names
 
 get_node_list()
 {
-	curl $CURLOPTS "$CWPP_URL/cm/api/v1/cluster-management/nodes-in-cluster" \
-				  -H "authorization: Bearer $TOKEN" \
-				  -H 'content-type: application/json' \
-				  -H "x-tenant-id: $TENANT_ID" \
-				  --data-raw "{\"workspace_id\":$TENANT_ID,\"cluster_id\":[$cid],\"from_time\":[],\"to_time\":[]}" | jq -r '.result[].NodeName' > $TMP
+	data_raw="{\"workspace_id\":$TENANT_ID,\"cluster_id\":[$cid],\"from_time\":[],\"to_time\":[]}"
+	ak_api "$CWPP_URL/cm/api/v1/cluster-management/nodes-in-cluster"
+	echo $json_string | jq -r '.result[].NodeName' > $TMP
 cat <<EOH
 {
 "Cluster": "$cname",
@@ -31,32 +30,19 @@ EOH
 
 get_cluster_id()
 {
+	ak_api "$CWPP_URL/cluster-onboarding/api/v1/get-onboarded-clusters?wsid=$TENANT_ID"
 	while read cline; do
 		cid=${cline/ */}
 		cname=${cline/* /}
 		[[ ! $cname =~ $clusterspec ]] && echo "ignoring cluster [$cname] ..." && continue
 		get_node_list
-	done < <(curl $CURLOPTS "$CWPP_URL/cluster-onboarding/api/v1/get-onboarded-clusters?wsid=$TENANT_ID" \
-	  -H 'accept: */*' \
-	  -H "authorization: Bearer $TOKEN" \
-	  -H 'content-type: application/json' \
-	  -H "x-tenant-id: $TENANT_ID" | jq -r '.[] | "\(.ID) \(.ClusterName)"')
+	done < <(echo $json_string | jq -r '.[] | "\(.ID) \(.ClusterName)"')
 }
-
-function cleanup {
-	rm -f $TMP
-}
-prereq()
-{
-	command -v jq >/dev/null 2>&1 || { echo >&2 "require 'jq' to be installed. Aborting."; exit 1; }
-}
-
-trap cleanup EXIT
 
 main()
 {
-	prereq
-	get_cluster_id | jq .
+	ak_prereq
+	get_cluster_id
 }
 
 # Processing starts here
