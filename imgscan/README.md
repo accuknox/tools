@@ -2,9 +2,8 @@
 
 GAR Prerequisites:
 1. **REGISTRY**: Full registry path for GAR
-2. **SA_EMAIL**: [Service Account Email](../res/gcp-service-account.png)
-3. Service Account Json: File containing the creds
-4. **IMGSPEC**: Regular expression for images to scan/upload-results. E.g. `.*:latest` => scan all the images having `latest` tag. Sample image name:`us-east1-docker.pkg.dev/kube-airgapped/accuknox-onprem/nginx:foobar`
+1. **Service Account Json**: [File containing the creds](../res/gcp-service-account.png)
+1. **IMGSPEC**: Regular expression for images to scan/upload-results. E.g. `.*:latest` => scan all the images having `latest` tag. Sample image name:`us-east1-docker.pkg.dev/kube-airgapped/accuknox-onprem/nginx:foobar`
 
 AccuKnox Prerequisites:
 1. **LABEL**: [AccuKnox Label](https://help.accuknox.com/how-to/how-to-create-labels/)
@@ -16,7 +15,6 @@ Scan images with tags `foobar`.
 ```bash
 docker run -eIMGSPEC=".*:foobar$" \
            -eREGISTRY=us-east1-docker.pkg.dev/kube-airgapped/accuknox-onprem \
-           -e"SA_EMAIL=<service-account-email>" \
            -eLABEL=labeltmp \
            -eTENANT=4093 \
            -eTOKEN=<get token> \
@@ -33,7 +31,6 @@ pipeline {
     environment {
         SA_FILE = credentials('SA_FILE')
         TOKEN = credentials('TOKEN')
-        SA_EMAIL = credentials('SA_EMAIL')
     }
     stages {
         stage('Accuknox') {
@@ -44,7 +41,6 @@ pipeline {
                     sh '''
                     docker run -e IMGSPEC=".*:foobar$" \
                         -e REGISTRY=us-east1-docker.pkg.dev/kube-airgapped/accuknox-onprem \
-                        -e "SA_EMAIL=rj-test@kube-airgapped.iam.gserviceaccount.com" \
                         -e LABEL=mylabel \
                         -e TENANT=4093 \
                         -e TOKEN=$TOKEN \
