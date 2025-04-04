@@ -3,6 +3,7 @@ Usage:
 Run the following command to fetch JSON data using `knoxctl` and convert it to a CSV file:
 
     knoxctl api cluster alerts --filters '{"field":"Action","value":"Block", "op": "match"}' --stime 1743013859 --etime 1743678818 --page 1 --page-size 5 --json | python3 knoxctl-alerts-json-to-csv.py
+    knoxctl api cluster alerts --filters '{"field":"Action","value":"Block","op":"match"}' --filters '{"field":"cluster_id","value":"62833", "op": "match"}'  --stime $(date -d "7 days ago" +%s) --etime $(date +%s) --page 1 --page-size 5 --json | python3 knoxctl-alerts-json-to-csv.py
 
 This script:
 - Reads JSON input from stdin.
